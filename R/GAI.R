@@ -6,9 +6,6 @@
 # Year 2018, August
 
 
-#load the function to indentify leap years
-is.leapyear<-function(year){#http://en.wikipedia.org/wiki/Leap_year
-  return(((year %% 4 == 0) & (year %% 100 != 0)) | (year %% 400 == 0))}
 
 
 
@@ -23,6 +20,7 @@ GAI<-function(yield, crop, year, variance, seeding, harvest, tillage, minimum_co
   for(j in 1:length(yield)){
 
     ###checking if the year is a leap year
+    if(is.na(year[j])){cat(paste("problem with year number",j, "it results", year[j]))}
     if(is.leapyear(year[j])){day=seq(from=1, to=366, by=1)}else{day=seq(from=1, to=365, by=1)}
 
     ###The GAI function core when the crops are in the list
@@ -31,7 +29,7 @@ GAI<-function(yield, crop, year, variance, seeding, harvest, tillage, minimum_co
       if(crop[j]=="root_crop"){GAImax=5.6}
       middle=seeding[j]+(harvest[j]-seeding[j])/2;
       GAI=GAImax*exp(-((day-middle)^2)/(2*variance[j]));
-      day_max<-which(GAI==max(GAI))
+      day_max<-round(mean(which(GAI==max(GAI))))
       GAI[day<seeding[j]]<-minimum_cover[j]
       #the following is a filling between the forced minimum for each crop and the day when such min is reached
       GAI[day<day_max][GAI[day<day_max]<minimum_cover[j]]<-minimum_cover[j]
@@ -47,9 +45,10 @@ GAI<-function(yield, crop, year, variance, seeding, harvest, tillage, minimum_co
         if (day[i]>seeding[j]){GAI[i]=(GAImax)/(1+exp(-((day[i]-seeding[j])-(harvest[j]-seeding[j])/2)/10))}
         if (day[i]<=seeding[j]){GAI[i]=0}
         if (day[i]>harvest[j]){GAI[i]<-0}
-        GAI[day<day_max][GAI[day<day_max]<minimum_cover[j]]<-minimum_cover[j]
+        if(minimum_cover[j]<0){GAI[day<day_max][GAI[day<day_max]<minimum_cover[j]]<-minimum_cover[j]}
         # if (day[i]>harvest[j]){GAI[i]<-max(GAI)*0.2}
         # if (day[i]>tillage){GAI[i]=0}
+        GAI[is.na(GAI)]<-0
       }
     }else if (crop[j]=='ley'){
 
@@ -77,8 +76,8 @@ GAI<-function(yield, crop, year, variance, seeding, harvest, tillage, minimum_co
           }# end of the environment where harvest2 does not exist
 
     } else if (crop[j]=='missing'){
+      GAI<-c()
       for(i in 1:length(day)){
-        GAI<-c()
         GAI[i]<-0
       }
     }

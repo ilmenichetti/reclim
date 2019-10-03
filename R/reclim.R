@@ -1,4 +1,6 @@
 
+### command to build .pdf documentation
+###devtools::build_manual()
 
 ### re_clim main calculations
 # author : Lorenzo Menichetti
@@ -42,7 +44,7 @@ library("RColorBrewer")
 #' @param wilting_point wilting point, as mm over the total. If speciefied with porosity and field capacity there's no need for other soil edaphic properties.
 #' @param field_capacity field capacity , as mm over the total. If speciefied with wilting point and porosity there's no need for other soil edaphic properties.
 #'
-#' @return None
+#' @return
 #'
 #' @examples
 #'
@@ -101,8 +103,6 @@ reclim_annual <-
 reclim_diagnostic_plots <-
   function(results_list, output_to_file=F)
   { ... }
-
-
 
 
 
@@ -184,6 +184,9 @@ reclim <- function(weather, #table
                    wilting_point=NULL,
                    field_capacity=NULL) {
 
+  #get the levels of the treatments, forcing it to factor just in case
+  treat_levels<-levels(as.factor(aboveground$treat))
+
   cat(paste("Hi there! we're going to try our best to calculate your ICBM climatic reduction factors...","\n","please forgive me for any issue, and write me an email at ilmenichetti@gmail.com, we can maybe try to smooth it out together","\n","\n"))
 
   cat("performing basic data integrity check on weather data","\n")
@@ -237,7 +240,7 @@ reclim <- function(weather, #table
 
   # perform some basic integrity tests on the input data
     #test that there are no gap years
-    treatment1<-levels(aboveground$treat)[1]
+    treatment1<-treat_levels[1]
     years_vec<-seq(from=aboveground$year[1], to=tail(aboveground$year,1), by=1)
     holes_in_years<- length(aboveground[aboveground$treat==treatment1,]$date) == length(years_vec)
     which_missing_AG<-which(years_vec %in% aboveground[aboveground$treat==treatment1,]$date)
@@ -310,33 +313,36 @@ reclim <- function(weather, #table
     cat("wilting point calculation","\n")
     wilting_point<-WP(sand=sand/100, clay=clay/100, SOC=ave_SOC)}
   if(is.null(field_capacity)){
-    cat("field calculation","\n")
+    cat("field capacity calculation","\n")
     field_capacity<-FC(sand=sand/100, SOC=ave_SOC)}
 
 
+
   #create the tables to store the values for each treatment
-  GAI_tab<-mat.or.vec(length(levels(aboveground$treat)), length(weather$date))
-  water_bal_tab<-mat.or.vec(length(levels(aboveground$treat)), length(weather$date))
-  soilT_tab<-mat.or.vec(length(levels(aboveground$treat)), length(weather$date))
-  re_wat_tab<-mat.or.vec(length(levels(aboveground$treat)), length(weather$date))
-  re_temp_tab<-mat.or.vec(length(levels(aboveground$treat)), length(weather$date))
-  re_crop_tab<-mat.or.vec(length(levels(aboveground$treat)), length(weather$date))
-  rownames(GAI_tab)<-levels(aboveground$treat)
-  rownames(water_bal_tab)<-levels(aboveground$treat)
-  rownames(soilT_tab)<-levels(aboveground$treat)
-  rownames(re_wat_tab)<-levels(aboveground$treat)
-  rownames(re_temp_tab)<-levels(aboveground$treat)
-  rownames(re_crop_tab)<-levels(aboveground$treat)
+  GAI_tab<-mat.or.vec(length(treat_levels), length(weather$date))
+  water_bal_tab<-mat.or.vec(length(treat_levels), length(weather$date))
+  soilT_tab<-mat.or.vec(length(treat_levels), length(weather$date))
+  re_wat_tab<-mat.or.vec(length(treat_levels), length(weather$date))
+  re_temp_tab<-mat.or.vec(length(treat_levels), length(weather$date))
+  re_crop_tab<-mat.or.vec(length(treat_levels), length(weather$date))
+  re_x1_tab<-mat.or.vec(length(treat_levels), length(weather$date))
+  rownames(GAI_tab)<-treat_levels
+  rownames(water_bal_tab)<-treat_levels
+  rownames(soilT_tab)<-treat_levels
+  rownames(re_wat_tab)<-treat_levels
+  rownames(re_temp_tab)<-treat_levels
+  rownames(re_crop_tab)<-treat_levels
+  rownames(re_x1_tab)<-treat_levels
 
 
-  for(i in 1:length(levels(aboveground$treat))){ #loop for treatments starts
+  for(i in 1:length(levels(as.factor(aboveground$treat)))){ #loop for treatments starts
 
-    treatment<-levels(aboveground$treat)[i]
-    selected_aboveground<-aboveground[aboveground$treat==treatment,]
+  treatment<-treat_levels[i]
+  selected_aboveground<-aboveground[aboveground$treat==treatment,]
 
-    cat(paste("\n","performing calculations for treatment",treatment,"\n"))
+  cat(paste("\n","performing calculations for treatment",treatment,"\n"))
 
-    cat(paste("GAI calculation for treatment",treatment,"\n"))
+  cat(paste("GAI calculation for treatment",treatment,"\n"))
   GAI_calc<-GAI(yield=selected_aboveground$total_dm_kg_ha,
                 year=selected_aboveground$year,
                 crop=selected_aboveground$crop_id,
@@ -348,6 +354,7 @@ reclim <- function(weather, #table
                 yield2=selected_aboveground$total_dm_kg_ha2,
                 harvest2=selected_aboveground$harvest2)
   GAI_tab[i,]<-GAI_calc$GAI
+
 
   #soil temperature
   cat(paste("Soil T calculation for treatment",treatment,"\n"))
@@ -368,7 +375,7 @@ reclim <- function(weather, #table
   water_bal_tab[i,]<-water_bal$water
 
   #re_wat
-  cat(paste("re-wat calculation for treatment",treatment,"\n"))
+  cat(paste("re_wat calculation for treatment",treatment,"\n"))
   re_wat<-re_water(twilt=wilting_point,
                  tfield=field_capacity,
                  porosity=porosity,
@@ -385,12 +392,14 @@ reclim <- function(weather, #table
   re_x1=re_wat*re_temp
   re_crop=re_x1/0.10516
   re_crop_tab[i,]<-re_crop
+  re_x1_tab[i,]<-re_x1
 
 
   } #end of loop for treatemtns
 
 
-  results_daily<-data.frame(PET_calc, t(GAI_tab), t(water_bal_tab), t(soilT_tab), t(re_wat_tab), t(re_temp_tab), t(re_crop_tab))
+  results_daily<-data.frame(PET_calc, t(GAI_tab), t(water_bal_tab), t(soilT_tab),
+                            t(re_wat_tab), t(re_temp_tab), t(re_crop_tab), t(re_x1_tab))
 
   #create the name vector for the result table
   shortnamelist<-c()
@@ -399,29 +408,35 @@ reclim <- function(weather, #table
   shortnamelist4<-c()
   shortnamelist5<-c()
   shortnamelist6<-c()
-  for(j in 1:length(levels(aboveground$treat))){
-    shortnamelist[j]<-paste("GAI",levels(aboveground$treat)[j], sep=".")
+  shortnamelist7<-c()
+  for(j in 1:length(treat_levels)){
+    shortnamelist[j]<-paste("GAI_treat",treat_levels[j], sep=".")
   }
-  for(j in 1:length(levels(aboveground$treat))){
-    shortnamelist2[j]<-paste("water_bal",levels(aboveground$treat)[j], sep=".")
+  for(j in 1:length(treat_levels)){
+    shortnamelist2[j]<-paste("water_bal_treat",treat_levels[j], sep=".")
   }
-  for(j in 1:length(levels(aboveground$treat))){
-    shortnamelist3[j]<-paste("soil_t",levels(aboveground$treat)[j], sep=".")
+  for(j in 1:length(treat_levels)){
+    shortnamelist3[j]<-paste("soil_t_treat",treat_levels[j], sep=".")
   }
-  for(j in 1:length(levels(aboveground$treat))){
-    shortnamelist4[j]<-paste("re_wat",levels(aboveground$treat)[j], sep=".")
+  for(j in 1:length(treat_levels)){
+    shortnamelist4[j]<-paste("re_wat_treat",treat_levels[j], sep=".")
   }
-  for(j in 1:length(levels(aboveground$treat))){
-    shortnamelist5[j]<-paste("re_temp",levels(aboveground$treat)[j], sep=".")
+  for(j in 1:length(treat_levels)){
+    shortnamelist5[j]<-paste("re_temp_treat",treat_levels[j], sep=".")
   }
-  for(j in 1:length(levels(aboveground$treat))){
-    shortnamelist6[j]<-paste("re_crop",levels(aboveground$treat)[j], sep=".")
+  for(j in 1:length(treat_levels)){
+    shortnamelist6[j]<-paste("re_crop_treat",treat_levels[j], sep=".")
   }
-  colnames(results_daily)[3:14]<-c(shortnamelist,shortnamelist2, shortnamelist3, shortnamelist4,shortnamelist5,shortnamelist6)
+  for(j in 1:length(treat_levels)){
+    shortnamelist7[j]<-paste("re_x1_treat",treat_levels[j], sep=".")
+  }
+  colnames(results_daily)<-c("date","PET",shortnamelist,shortnamelist2, shortnamelist3, shortnamelist4,shortnamelist5,shortnamelist6,shortnamelist7)
 
 
-  results_list<-list(results_daily, PET_calc, (GAI_tab), (water_bal_tab), (soilT_tab), (re_wat_tab), (re_temp_tab), (re_crop_tab), GAI_calc$crop)
-  names(results_list)<-c("results_daily", "PET", "GAI", "water_bal", "soil_temp", "re_wat", "re_temp", "re_crop", "crop_id")
+  #results_list<-list(results_daily, PET_calc, (GAI_tab), (water_bal_tab), (soilT_tab), (re_wat_tab), (re_temp_tab), (re_crop_tab), GAI_calc$crop,  porosity, wilting_point, field_capacity)
+  results_list<-list(results_daily, PET_calc, (GAI_tab), (water_bal_tab), (soilT_tab), (re_wat_tab), (re_temp_tab), (re_crop_tab), (re_x1_tab), GAI_calc$crop,  porosity, wilting_point, field_capacity)
+  #names(results_list)<-c("results_daily", "PET", "GAI", "water_bal", "soil_temp", "re_wat", "re_temp", "re_crop", "crop_id",  "porosity", "wilting_point", "field_capacity")
+  names(results_list)<-c("results_daily", "PET", "GAI", "water_bal", "soil_temp", "re_wat", "re_temp", "re_crop", "re_x1", "crop_id",  "porosity", "wilting_point", "field_capacity")
   return(results_list)
 
 }
@@ -429,7 +444,8 @@ reclim <- function(weather, #table
 
 # function to aggregate the calculated values by year
 reclim_annual <- function(results_daily){
-  DF_yearly<-aggregate(data.frame(results_daily), by=list(year(results_daily$date)), FUN="mean")[,2:15]
+  DF_yearly<-aggregate(data.frame(results_daily), by=list(year(results_daily$date)), FUN="mean")
+
   return(DF_yearly)
   }
 
