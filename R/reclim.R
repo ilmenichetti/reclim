@@ -194,7 +194,7 @@ reclim <- function(weather, #table
   ## perform some basic integrity tests on the input data
   # test the dates
     # make sure the date is in the correct format
-    weather$date<-as.Date(as.character(weather$date), format = "%m/%d/%Y")
+    weather$date<-as.Date(as.character(weather$date), format = "%m/%d/%y")
     # check that the first date is a 1st January
     start_on_january<-format((weather$date[1]), "%d-%m")=="01-01"
     if(!start_on_january){ stop("your weather time series does not start on the first of January, correct")}
