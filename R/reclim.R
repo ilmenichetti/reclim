@@ -253,7 +253,7 @@ reclim <- function(weather, #table
     #check eventual NAs in the total_dm_kg_ha
     if(any(is.na(aboveground$total_dm_kg_ha))){stop("some NAs detected in total_dm_kg_ha series, correct")}
     #check eventual wrong codes in the crop_id
-    GAI_crop_list<-c("spring_small_grains", "spring_oil_seeds","winter_small_grains", "winter_oil_seeds","root_crop", "fodder", "ley1", "ley", "missing")
+    GAI_crop_list<-c("spring_small_grains", "spring_oil_seeds","winter_small_grains", "winter_oil_seeds","root_crop", "fodder","fodder_maize", "ley1", "ley", "missing")
     aboveground_error<-!(aboveground$crop_id %in% GAI_crop_list)
     which_wrong_crop<-which(aboveground_error)
     which_wrong_crop_message<-paste(which_wrong_crop, collapse =",")
