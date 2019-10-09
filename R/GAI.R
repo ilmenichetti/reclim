@@ -50,6 +50,19 @@ GAI<-function(yield, crop, year, variance, seeding, harvest, tillage, minimum_co
         # if (day[i]>tillage){GAI[i]=0}
         GAI[is.na(GAI)]<-0
       }
+    }else if(crop[j] == "fodder_maize"){
+      #The GAI function core in the case of fodder, such as silage maize, it also loses all the biomass at harves
+      GAImax=min(10,0.000533*yield[j]);
+      GAI<-c()
+      for(i in 1:length(day)){
+        if (day[i]>seeding[j]){GAI[i]=(GAImax)/(1+exp(-((day[i]-seeding[j])-(harvest[j]-seeding[j])/2)/10))}
+        if (day[i]<=seeding[j]){GAI[i]=0}
+        if (day[i]>harvest[j]){GAI[i]<-0}
+        if(minimum_cover[j]<0){GAI[day<day_max][GAI[day<day_max]<minimum_cover[j]]<-minimum_cover[j]}
+        # if (day[i]>harvest[j]){GAI[i]<-max(GAI)*0.2}
+        # if (day[i]>tillage){GAI[i]=0}
+        GAI[is.na(GAI)]<-0
+      }
     }else if (crop[j]=='ley'){
 
         if(exists("harvest2") & harvest2[j]>0){ # in case there is a second harvest
@@ -91,6 +104,7 @@ GAI<-function(yield, crop, year, variance, seeding, harvest, tillage, minimum_co
                    -winter_oil_seeds
                    -root_crop
                    -fodder
+                   -fodder_maize
                    -ley"))
     }
 
