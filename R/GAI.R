@@ -5,6 +5,53 @@
 # author: Lorenzo Menichetti, on specifications from Martin Bolinder
 # Year 2018, August
 
+### Roxygen documentation
+
+#GAI
+#'Wrapper for the functions calculating the ICBM climate scaling factors
+#'
+
+#' @author Lorenzo Menichetti \email{ilmenichetti@@gmail.com}
+#'
+#' @param weather data matrix of weather data, must be exactly in the format of the templates attached as example and contain the following headers:
+#'  ("date", "year", "month", "day", "air_temp_deg_C", "precipitation_mm", "windspeed_kmh", "humidity_percent", "Rsolar_lang")
+#'
+#' @param aboveground data matrix of weather data, must be exactly in the format of the templates attached as example and contain the following headers:
+#'  ("year", "crop_description", "crop_id", "treat", "variance", "seeding", "harvest", "harvest2", "tillage", "minimum_cover", "total_dm_kg_ha", "total_dm_kg_ha2" )
+#'  "harvest2" and "total_dm_kg_ha2" are optional and used in case of a double cut for leys
+#' @param sun.mode mode of sun data, can be either "Rsolar" (expressed in Langleys) or "cloudiness" (expressed in percent of sunny time per day)
+#' @param latitude well, the latitude, in degrees
+#' @param altitude altitude in meters
+#' @param depth depth considered in centimeters
+#' @param sand sand, in \%. This is needed if porosity, wilting point and field capacity are not specified
+#' @param clay clay, in \%. This is needed if porosity, wilting point and field capacity are not specified
+#' @param ave_SOC average SOC over the whole period, in \%. This is needed if porosity, wilting point and field capacity are not specified
+#' @param porosity soil porosity, as 0 to 1. If speciefied with wilting point and field capacity there's no need for other soil edaphic properties.
+#' @param wilting_point wilting point, as mm over the total. If speciefied with porosity and field capacity there's no need for other soil edaphic properties.
+#' @param field_capacity field capacity , as mm over the total. If speciefied with wilting point and porosity there's no need for other soil edaphic properties.
+#'
+#' @return
+#'
+#' @examples
+#'
+#'reclim_out<-reclim(weather=weather_testdata,
+#'                   aboveground=aboveground_testdata,
+#'                   latitude=44,
+#'                   altitude=20,
+#'                   sand=22,
+#'                   clay=36,
+#'                   ave_SOC=1.2,
+#'                   depth=20,
+#'                   sun.mode="Rsolar")
+#'
+#' @export
+GAI <-
+  function(yield, crop, year, variance,
+           seeding, harvest, tillage, minimum_cover,
+           yield2=NULL, harvest2=NULL)
+  { ... }
+
+
 
 
 
