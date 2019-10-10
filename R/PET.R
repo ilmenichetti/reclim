@@ -74,7 +74,7 @@ PET<-function(latitude, altitude, humidity, temperature, windspeed, sun, sun.mod
   NAs<-which(is.na(Et0))
   cat("WARNING- there are some NAs:", NAs, "
       Compensating by Stineman interpolation")
-  Et0<-na.interpolation(Et0, option="stine")
+  Et0<-na_interpolation(Et0, option="stine")
   }
 
   return(data.frame(date, ET0=Et0))
