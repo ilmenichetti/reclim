@@ -68,8 +68,8 @@ GAI<-function(yield, crop, year, variance, seeding, harvest, tillage, minimum_co
       # GAI[day>harvest[j]]=max(GAI)*0.2 #all crops at harvest lose most AG product, but retains 20% until tillage[j]. Modification by Lorenzo Menichetti
       # GAI[day>tillage[j]]=0
     }else if(crop[j] == "fodder"){
-      #The GAI function core in the case of fodder, such as silage maize, it also loses all the biomass at harves
-      GAImax=min(10,0.0018*yield[j]);
+      #The GAI function core in the case of fodder also loses all the biomass at harves
+      GAImax=min(10,0.0004615385*yield[j]); #for fodder rapre, from https://www.agronomysociety.org.nz/files/2010_11._Seed_yield_of_forage_rape.pdf
       GAI<-c()
       for(i in 1:length(day)){
         if (day[i]>seeding[j]){GAI[i]=(GAImax)/(1+exp(-((day[i]-seeding[j])-(harvest[j]-seeding[j])/2)/10))}
