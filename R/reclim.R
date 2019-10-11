@@ -13,6 +13,7 @@ library("zoo")
 library("lubridate")
 library("imputeTS")
 library("RColorBrewer")
+library("anytime")
 
 
 ### Roxygen documentation
@@ -194,10 +195,10 @@ reclim <- function(weather, #table
   ## perform some basic integrity tests on the input data
   # test the dates
     # make sure the date is in the correct format
-  weather$date<-as.Date(as.character(weather$date))
+    weather$date<-anydate((weather$date))
     # check that the first date is a 1st January
-    start_on_january<-format((weather$date[1]), "%d-%m")=="01-01"
-    if(!start_on_january){ stop("your weather time series does not start on the first of January, correct")}
+    start_on_january<-format(as.Date(weather$date[1]), "%d-%m")=="01-01"
+    if(!start_on_january){ stop("either your weather time series does not start on the first of January or is not in the right format (YYYY-mm-dd, separaed by hyphens), please check and correct")}
     # check that the last date is a 31st december
     end_on_december<-format(tail(weather$date,1), "%d-%m")=="31-12"
     if(!end_on_december){ stop("your weather time series does not end on the last of December, correct")}
