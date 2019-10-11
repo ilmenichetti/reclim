@@ -10,5 +10,5 @@ License: WTFPL, http://www.wtfpl.net
 Encoding: UTF-8
 LazyData: true
 #Suggests: testthat
-Depends: zoo, lubridate, imputeTS, RColorBrewer, anydate
+Depends: zoo, lubridate, imputeTS, RColorBrewer, anytime
 RoxygenNote: 6.1.1
