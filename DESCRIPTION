@@ -6,9 +6,9 @@ Author: Lorenzo Menichetti
 Maintainer: Lorenzo Menichetti <ilmenichetti@gmail.com>
 Description: Calculates the climatic scale factors for ICBM
     Collection of several functions
-License: What license is it under?
+License: WTFPL, http://www.wtfpl.net
 Encoding: UTF-8
 LazyData: true
 #Suggests: testthat
-Depends: zoo, lubridate, imputeTS, RColorBrewer
+Depends: zoo, lubridate, imputeTS, RColorBrewer, anydate
 RoxygenNote: 6.1.1

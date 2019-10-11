@@ -56,7 +56,11 @@ GAI<-function(yield, crop, year, variance, seeding, harvest, tillage, minimum_co
     ###The GAI function core when the crops are in the list
     if(crop[j] %in% crop_list){
       GAImax=0.0129*(yield[j]/1000)^2 + 0.1964*yield[j]/1000;
-      if(crop[j]=="root_crop"){GAImax=5.6}
+      if(crop[j]=="root_crop"){ #data based on Table 4.4 IN Fortinet al. 2008
+        LAImax_vec=c(4.9, 6.5,5.4)
+        yield_vec=c(5317,8080,8031)
+        GAImax==min(5.6,mean(LAImax_vec/yield_vec)*yield[j])
+        }
       middle=seeding[j]+(harvest[j]-seeding[j])/2;
       GAI=GAImax*exp(-((day-middle)^2)/(2*variance[j]));
       day_max<-round(mean(which(GAI==max(GAI))))
