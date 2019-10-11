@@ -59,7 +59,7 @@ GAI<-function(yield, crop, year, variance, seeding, harvest, tillage, minimum_co
       if(crop[j]=="root_crop"){ #data based on Table 4.4 IN Fortinet al. 2008
         LAImax_vec=c(4.9, 6.5,5.4)
         yield_vec=c(5317,8080,8031)
-        GAImax==min(5.6,mean(LAImax_vec/yield_vec)*yield[j])
+        GAImax==min(5.6,(1/0.8)*mean(LAImax_vec/yield_vec)*yield[j])
         }
       middle=seeding[j]+(harvest[j]-seeding[j])/2;
       GAI=GAImax*exp(-((day-middle)^2)/(2*variance[j]));
@@ -86,7 +86,7 @@ GAI<-function(yield, crop, year, variance, seeding, harvest, tillage, minimum_co
       }
     }else if(crop[j] == "fodder_maize"){
       #The GAI function core in the case of fodder, such as silage maize, it also loses all the biomass at harves
-      GAImax=min(10,0.000533*yield[j]);
+      GAImax=min(10,(1/0.8)*0.000533*yield[j]);
       GAI<-c()
       for(i in 1:length(day)){
         if (day[i]>seeding[j]){GAI[i]=(GAImax)/(1+exp(-((day[i]-seeding[j])-(harvest[j]-seeding[j])/2)/10))}
