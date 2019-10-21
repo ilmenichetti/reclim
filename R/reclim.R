@@ -309,13 +309,16 @@ reclim <- function(weather, #table
   #calculate porosity, wilting point and field capacity if missing
   if(is.null(porosity)){
     cat("porosity calculation","\n")
-    porosity<-poros(sand=sand/100, clay=clay/100, SOC=ave_SOC)}
+    porosity<-poros(sand=sand/100, clay=clay/100, SOC=ave_SOC)
+    }
   if(is.null(wilting_point)){
     cat("wilting point calculation","\n")
-    wilting_point<-WP(sand=sand/100, clay=clay/100, SOC=ave_SOC)}
+    wilting_point<-WP(sand=sand/100, clay=clay/100, SOC=ave_SOC)
+    }
   if(is.null(field_capacity)){
     cat("field capacity calculation","\n")
-    field_capacity<-FC(sand=sand/100, SOC=ave_SOC)}
+    field_capacity<-FC(sand=sand/100, SOC=ave_SOC)
+    }
 
 
 
@@ -354,6 +357,7 @@ reclim <- function(weather, #table
                 minimum_cover=selected_aboveground$minimum_cover,
                 yield2=selected_aboveground$total_dm_kg_ha2,
                 harvest2=selected_aboveground$harvest2)
+
   GAI_tab[i,]<-GAI_calc$GAI
 
 

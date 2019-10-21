@@ -67,6 +67,7 @@ GAI<-function(yield, crop, year, variance, seeding, harvest, tillage, minimum_co
       GAI[day<seeding[j]]<-minimum_cover[j]
       #the following is a filling between the forced minimum for each crop and the day when such min is reached
       GAI[day<day_max][GAI[day<day_max]<minimum_cover[j]]<-minimum_cover[j]
+      if(minimum_cover[j]>0){GAI[GAI<minimum_cover[j]]<-minimum_cover[j]}
 
       if(crop[j]=="root_crop"){ GAI[day>harvest[j]]=0} #root crops at harvest lose all the aboveground product.
       # GAI[day>harvest[j]]=max(GAI)*0.2 #all crops at harvest lose most AG product, but retains 20% until tillage[j]. Modification by Lorenzo Menichetti
@@ -79,11 +80,11 @@ GAI<-function(yield, crop, year, variance, seeding, harvest, tillage, minimum_co
         if (day[i]>seeding[j]){GAI[i]=(GAImax)/(1+exp(-((day[i]-seeding[j])-(harvest[j]-seeding[j])/2)/10))}
         if (day[i]<=seeding[j]){GAI[i]=0}
         if (day[i]>harvest[j]){GAI[i]<-0}
-        if(minimum_cover[j]<0){GAI[day<day_max][GAI[day<day_max]<minimum_cover[j]]<-minimum_cover[j]}
         # if (day[i]>harvest[j]){GAI[i]<-max(GAI)*0.2}
         # if (day[i]>tillage){GAI[i]=0}
         GAI[is.na(GAI)]<-0
-      }
+        if(minimum_cover[j]>0){GAI[GAI<minimum_cover[j]]<-minimum_cover[j]}
+        }
     }else if(crop[j] == "fodder_maize"){
       #The GAI function core in the case of fodder, such as silage maize, it also loses all the biomass at harves
       GAImax=min(10,(1/0.8)*0.000533*yield[j]);
@@ -92,10 +93,13 @@ GAI<-function(yield, crop, year, variance, seeding, harvest, tillage, minimum_co
         if (day[i]>seeding[j]){GAI[i]=(GAImax)/(1+exp(-((day[i]-seeding[j])-(harvest[j]-seeding[j])/2)/10))}
         if (day[i]<=seeding[j]){GAI[i]=0}
         if (day[i]>harvest[j]){GAI[i]<-0}
-        if(minimum_cover[j]<0){GAI[day<day_max][GAI[day<day_max]<minimum_cover[j]]<-minimum_cover[j]}
+        #if(minimum_cover[j]<0){GAI[day<day_max][GAI[day<day_max]<minimum_cover[j]]<-minimum_cover[j]}
         # if (day[i]>harvest[j]){GAI[i]<-max(GAI)*0.2}
         # if (day[i]>tillage){GAI[i]=0}
         GAI[is.na(GAI)]<-0
+        if(minimum_cover[j]>0){GAI[GAI<minimum_cover[j]]<-minimum_cover[j]}
+
+
       }
     }else if (crop[j]=='ley'){
 
@@ -109,6 +113,8 @@ GAI<-function(yield, crop, year, variance, seeding, harvest, tillage, minimum_co
           }
           GAI_production<-GAI[seeding[j]:length(day)]
           GAI[harvest[j]:harvest2[j]]<-GAI_production[1:((harvest2[j]-harvest[j])+1)]
+          if(minimum_cover[j]>0){GAI[GAI<minimum_cover[j]]<-minimum_cover[j]}
+          if(!is.na(tillage[j])){GAI[tillage[j]:length(day)]=0}
 
             }else { #in case harvest2 does not exist
               #GAI<-c()
@@ -117,9 +123,11 @@ GAI<-function(yield, crop, year, variance, seeding, harvest, tillage, minimum_co
               for(i in 1:length(day)){
                 if (day[i]>seeding[j]){GAI[i]=(GAImax)/(1+exp(-((day[i]-seeding[j])-(harvest[j]-seeding[j])/2)/10))}
                 if (day[i]<=seeding[j]){GAI[i]=0}
-                if (day[i]>harvest[j]){GAI[i]<-0}
+                if (day[i]>harvest[j]){GAI[i]<-minimum_cover[j]}
               }
               GAI[day<seeding[j]]<-minimum_cover[j]
+              if(minimum_cover[j]>0){GAI[GAI<minimum_cover[j]]<-minimum_cover[j]}
+              if(!is.na(tillage[j])){GAI[tillage[j]:length(day)]=0}
 
               #following two lines set GAI to minimum cover after the first bloom
               #  day_max<-round(mean(which(GAI==max(GAI))))
