@@ -117,10 +117,14 @@ GAI<-function(yield, crop, year, variance, seeding, harvest, tillage, minimum_co
               for(i in 1:length(day)){
                 if (day[i]>seeding[j]){GAI[i]=(GAImax)/(1+exp(-((day[i]-seeding[j])-(harvest[j]-seeding[j])/2)/10))}
                 if (day[i]<=seeding[j]){GAI[i]=0}
-                #if (day[i]>harvest[j]){GAI[i]<-0}
+                if (day[i]>harvest[j]){GAI[i]<-0}
               }
               GAI[day<seeding[j]]<-minimum_cover[j]
-              GAI[day<day_max][GAI[day<day_max]<minimum_cover[j]]<-minimum_cover[j]
+
+              #following two lines set GAI to minimum cover after the first bloom
+              #  day_max<-round(mean(which(GAI==max(GAI))))
+              #  GAI[day<day_max][GAI[day<day_max]<minimum_cover[j]]<-minimum_cover[j]
+
           }# end of the environment where harvest2 does not exist
 
     } else if (crop[j]=='missing'){
