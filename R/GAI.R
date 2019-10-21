@@ -68,6 +68,7 @@ GAI<-function(yield, crop, year, variance, seeding, harvest, tillage, minimum_co
       #the following is a filling between the forced minimum for each crop and the day when such min is reached
       GAI[day<day_max][GAI[day<day_max]<minimum_cover[j]]<-minimum_cover[j]
       if(minimum_cover[j]>0){GAI[GAI<minimum_cover[j]]<-minimum_cover[j]}
+      if(!is.na(tillage[j])){GAI[tillage[j]:length(day)]=0}
 
       if(crop[j]=="root_crop"){ GAI[day>harvest[j]]=0} #root crops at harvest lose all the aboveground product.
       # GAI[day>harvest[j]]=max(GAI)*0.2 #all crops at harvest lose most AG product, but retains 20% until tillage[j]. Modification by Lorenzo Menichetti
@@ -84,6 +85,8 @@ GAI<-function(yield, crop, year, variance, seeding, harvest, tillage, minimum_co
         # if (day[i]>tillage){GAI[i]=0}
         GAI[is.na(GAI)]<-0
         if(minimum_cover[j]>0){GAI[GAI<minimum_cover[j]]<-minimum_cover[j]}
+        if(!is.na(tillage[j])){GAI[tillage[j]:length(day)]=0}
+
         }
     }else if(crop[j] == "fodder_maize"){
       #The GAI function core in the case of fodder, such as silage maize, it also loses all the biomass at harves
@@ -98,7 +101,7 @@ GAI<-function(yield, crop, year, variance, seeding, harvest, tillage, minimum_co
         # if (day[i]>tillage){GAI[i]=0}
         GAI[is.na(GAI)]<-0
         if(minimum_cover[j]>0){GAI[GAI<minimum_cover[j]]<-minimum_cover[j]}
-
+        if(!is.na(tillage[j])){GAI[tillage[j]:length(day)]=0}
 
       }
     }else if (crop[j]=='ley'){
