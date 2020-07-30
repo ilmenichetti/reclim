@@ -325,6 +325,7 @@ reclim <- function(weather, #table
   #create the tables to store the values for each treatment
   GAI_tab<-mat.or.vec(length(treat_levels), length(weather$date))
   water_bal_tab<-mat.or.vec(length(treat_levels), length(weather$date))
+  actevapo_tab<-mat.or.vec(length(treat_levels), length(weather$date))
   soilT_tab<-mat.or.vec(length(treat_levels), length(weather$date))
   re_wat_tab<-mat.or.vec(length(treat_levels), length(weather$date))
   re_temp_tab<-mat.or.vec(length(treat_levels), length(weather$date))
@@ -332,6 +333,7 @@ reclim <- function(weather, #table
   re_x1_tab<-mat.or.vec(length(treat_levels), length(weather$date))
   rownames(GAI_tab)<-treat_levels
   rownames(water_bal_tab)<-treat_levels
+  rownames(actevapo_tab)<-treat_levels
   rownames(soilT_tab)<-treat_levels
   rownames(re_wat_tab)<-treat_levels
   rownames(re_temp_tab)<-treat_levels
@@ -378,6 +380,7 @@ reclim <- function(weather, #table
                           date=GAI_calc$date,
                           L=depth*10)
   water_bal_tab[i,]<-water_bal$water
+  actevapo_tab[i,]<-water_bal$actevapo
 
   #re_wat
   cat(paste("re_wat calculation for treatment",treatment,"\n"))
@@ -404,7 +407,7 @@ reclim <- function(weather, #table
 
 
   results_daily<-data.frame(PET_calc, t(GAI_tab), t(water_bal_tab), t(soilT_tab),
-                            t(re_wat_tab), t(re_temp_tab), t(re_crop_tab), t(re_x1_tab))
+                            t(re_wat_tab), t(re_temp_tab), t(re_crop_tab), t(re_x1_tab), t(actevapo_tab))
 
   #create the name vector for the result table
   shortnamelist<-c()
@@ -414,6 +417,7 @@ reclim <- function(weather, #table
   shortnamelist5<-c()
   shortnamelist6<-c()
   shortnamelist7<-c()
+  shortnamelist8<-c()
   for(j in 1:length(treat_levels)){
     shortnamelist[j]<-paste("GAI_treat",treat_levels[j], sep=".")
   }
@@ -435,13 +439,16 @@ reclim <- function(weather, #table
   for(j in 1:length(treat_levels)){
     shortnamelist7[j]<-paste("re_x1_treat",treat_levels[j], sep=".")
   }
-  colnames(results_daily)<-c("date","PET",shortnamelist,shortnamelist2, shortnamelist3, shortnamelist4,shortnamelist5,shortnamelist6,shortnamelist7)
+  for(j in 1:length(treat_levels)){
+    shortnamelist8[j]<-paste("actevapo_treat",treat_levels[j], sep=".")
+  }
+  colnames(results_daily)<-c("date","PET",shortnamelist,shortnamelist2, shortnamelist3, shortnamelist4,shortnamelist5,shortnamelist6,shortnamelist7, shortnamelist8)
 
 
   #results_list<-list(results_daily, PET_calc, (GAI_tab), (water_bal_tab), (soilT_tab), (re_wat_tab), (re_temp_tab), (re_crop_tab), GAI_calc$crop,  porosity, wilting_point, field_capacity)
-  results_list<-list(results_daily, PET_calc, (GAI_tab), (water_bal_tab), (soilT_tab), (re_wat_tab), (re_temp_tab), (re_crop_tab), (re_x1_tab), GAI_calc$crop,  porosity, wilting_point, field_capacity)
+  results_list<-list(results_daily, PET_calc, (GAI_tab), (water_bal_tab), (soilT_tab), (re_wat_tab), (re_temp_tab), (re_crop_tab), (re_x1_tab), GAI_calc$crop,  porosity, wilting_point, field_capacity, actevapo_tab)
   #names(results_list)<-c("results_daily", "PET", "GAI", "water_bal", "soil_temp", "re_wat", "re_temp", "re_crop", "crop_id",  "porosity", "wilting_point", "field_capacity")
-  names(results_list)<-c("results_daily", "PET", "GAI", "water_bal", "soil_temp", "re_wat", "re_temp", "re_crop", "re_x1", "crop_id",  "porosity", "wilting_point", "field_capacity")
+  names(results_list)<-c("results_daily", "PET", "GAI", "water_bal", "soil_temp", "re_wat", "re_temp", "re_crop", "re_x1", "crop_id",  "porosity", "wilting_point", "field_capacity", "actevapo")
   return(results_list)
 
 }

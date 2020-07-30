@@ -153,6 +153,7 @@ waterbalance<-function(twilt, tfield, precipitation, GAI, date, ET0, L){
 
   alfa=0.7
   water<-c()
+  actevapo<-c()
   bypass<-c() # this is the vector where to store the percolation
 
   water[1] = tfield*L #setting initial water content to max
@@ -170,17 +171,17 @@ waterbalance<-function(twilt, tfield, precipitation, GAI, date, ET0, L){
       theta=water[i]/L;
       Kr=max(0,(1-(0.9*tfield-theta)/(0.9*tfield-alfa*twilt))^2);
       if (Kr>1){Kr=1}
-      actevapo=Epot*Kr #actual evapotranspiration
-      water[i+1]=water[i]+precipitation[i]-actevapo-inter-bypass[i]
+      actevapo[i]=Epot*Kr #actual evapotranspiration
+      water[i+1]=water[i]+precipitation[i]-actevapo[i]-inter-bypass[i]
     }
   #
   if(any(water<0)){
     cat("WARNING: some water content values are below zero, forcing them to zero...but have a look at the data just in case")
       water[water<0]=0}
 
-  result<-data.frame(head(water,-1), date)
+  result<-data.frame(head(water,-1), date, actevapo)
   result$date<-as.Date(result$date)
-  colnames(result)<-c("water", "date")
+  colnames(result)<-c("water", "date", "actevapo")
   return(result)
   }
 

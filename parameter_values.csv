@@ -1,0 +1,17 @@
+parameter,mode,mean,min,max
+$k_Y$,0,0,0,0
+$k_O$,0,0,0,0
+$h_R$,0,0,0,0
+$h_S$,0,0,0,0
+$h_{FYM}$,0,0,0,0
+$h_{PEA}$,0,0,0,0
+$h_{SAW}$,0,0,0,0
+$h_{SLU}$,0,0,0,0
+$h_{CO}$,0,0,0,0
+$exudates$,0,0,0,0
+$stubble_{Ultuna}$,0,0,0,0
+$stubble_{Lanna}$,0,0,0,0
+$SR_{cereals}$,0,0,0,0
+$SR_{roots}$,0,0,0,0
+$SR_{oilseeds}$,0,0,0,0
+$SR_{corn}$,0,0,0,0
