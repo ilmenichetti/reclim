@@ -398,7 +398,8 @@ reclim <- function(weather, #table
 
   #re_crop
   re_x1=re_wat*re_temp
-  re_crop=re_x1/0.10516
+  #re_crop=re_x1/0.10516
+  re_crop=re_x1/0.1056855 #updated on new value, August 2021
   re_crop_tab[i,]<-re_crop
   re_x1_tab[i,]<-re_x1
 

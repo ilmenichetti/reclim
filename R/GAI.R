@@ -55,7 +55,8 @@ GAI<-function(yield, crop, year, variance, seeding, harvest, tillage, minimum_co
 
     ###The GAI function core when the crops are in the list
     if(crop[j] %in% crop_list){
-      GAImax=0.0129*(yield[j]/1000)^2 + 0.1964*yield[j]/1000;
+      GAImax=0.0129*(yield[j]/1000)^2 + 0.1964*(yield[j]/1000);
+
       if(crop[j]=="root_crop"){ #data based on Table 4.4 IN Fortinet al. 2008
         LAImax_vec=c(4.9, 6.5,5.4)
         yield_vec=c(5317,8080,8031)
@@ -67,8 +68,9 @@ GAI<-function(yield, crop, year, variance, seeding, harvest, tillage, minimum_co
       GAI[day<seeding[j]]<-minimum_cover[j]
       #the following is a filling between the forced minimum for each crop and the day when such min is reached
       GAI[day<day_max][GAI[day<day_max]<minimum_cover[j]]<-minimum_cover[j]
-      if(minimum_cover[j]>0){GAI[GAI<minimum_cover[j]]<-minimum_cover[j]}
-      if(!is.na(tillage[j])){GAI[tillage[j]:length(day)]=0}
+
+    if(minimum_cover[j]>0){GAI[GAI<minimum_cover[j]]<-minimum_cover[j]}
+    if(!is.na(tillage[j])){GAI[tillage[j]:length(day)]=0}
 
       if(crop[j]=="root_crop"){ GAI[day>harvest[j]]=0} #root crops at harvest lose all the aboveground product.
       # GAI[day>harvest[j]]=max(GAI)*0.2 #all crops at harvest lose most AG product, but retains 20% until tillage[j]. Modification by Lorenzo Menichetti
