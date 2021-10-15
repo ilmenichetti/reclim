@@ -20,7 +20,7 @@
 #' @param seeding
 #' @param harvest
 #' @param tillage
-#' @param minimum_cover,
+#' @param minimum_cover, forcing a minimum cover, useful for leys
 #' @param yield2,
 #' @param harvest2L
 #'
@@ -40,7 +40,8 @@ GAI <-
 
 
 #GAI functions with GAImax values calculated from aboveground NPP
-GAI<-function(yield, crop, year, variance, seeding, harvest, tillage, minimum_cover, yield2=NULL, harvest2=NULL){
+GAI<-function(yield, crop, year, variance, seeding, harvest, tillage, minimum_cover,
+              yield2=NULL, harvest2=NULL){
 
 
   GAI_list<-list()
@@ -55,31 +56,34 @@ GAI<-function(yield, crop, year, variance, seeding, harvest, tillage, minimum_co
 
     ###The GAI function core when the crops are in the list
     if(crop[j] %in% crop_list){
-      GAImax=0.0129*(yield[j]/1000)^2 + 0.1964*(yield[j]/1000);
+          GAImax=0.0129*(yield[j]/1000)^2 + 0.1964*(yield[j]/1000);
 
-      if(crop[j]=="root_crop"){ #data based on Table 4.4 IN Fortinet al. 2008
-        LAImax_vec=c(4.9, 6.5,5.4)
-        yield_vec=c(5317,8080,8031)
-        GAImax=min(5.6,(1/0.8)*mean(LAImax_vec/yield_vec)*(1/0.75)*yield[j]) #0.75 is the H. I. of potatoe from HARVEST INDEX OF POTATO CROP GROWN UNDER DIFFERENT NITROGEN AND WATER SUPPLY,     January 2009, W. Mazurczyk, Anna Teresa Wierzbicka, Anna Teresa WierzbickaC. Trawczyński
-        }
-      middle=seeding[j]+(harvest[j]-seeding[j])/2;
-      GAI=GAImax*exp(-((day-middle)^2)/(2*variance[j]));
-      day_max<-round(mean(which(GAI==max(GAI))))
-      GAI[day<seeding[j]]<-minimum_cover[j]
-      #the following is a filling between the forced minimum for each crop and the day when such min is reached
-      GAI[day<day_max][GAI[day<day_max]<minimum_cover[j]]<-minimum_cover[j]
+          if(crop[j]=="root_crop"){ #data based on Table 4.4 IN Fortinet al. 2008
+            LAImax_vec=c(4.9, 6.5,5.4)
+            yield_vec=c(5317,8080,8031)
+            GAImax=min(5.6,(1/0.8)*mean(LAImax_vec/yield_vec)*(1/0.75)*yield[j]) #0.75 is the H. I. of potatoe from HARVEST INDEX OF POTATO CROP GROWN UNDER DIFFERENT NITROGEN AND WATER SUPPLY,     January 2009, W. Mazurczyk, Anna Teresa Wierzbicka, Anna Teresa WierzbickaC. Trawczyński
+            }
+          middle=seeding[j]+(harvest[j]-seeding[j])/2;
+          GAI=GAImax*exp(-((day-middle)^2)/(2*variance[j]));
+          day_max<-round(mean(which(GAI==max(GAI))))
+          #GAI[day<seeding[j]]<-minimum_cover[j]
+          GAI[day<seeding[j]]<-0
 
-    if(minimum_cover[j]>0){GAI[GAI<minimum_cover[j]]<-minimum_cover[j]}
-    if(!is.na(tillage[j])){GAI[tillage[j]:length(day)]=0}
+          #the following is a filling between the forced minimum for each crop and the day when such min is reached
+          #GAI[day<day_max][GAI[day<day_max]<minimum_cover[j]]<-minimum_cover[j]
 
-      if(crop[j]=="root_crop"){ GAI[day>harvest[j]]=0} #root crops at harvest lose all the aboveground product.
-      # GAI[day>harvest[j]]=max(GAI)*0.2 #all crops at harvest lose most AG product, but retains 20% until tillage[j]. Modification by Lorenzo Menichetti
-      # GAI[day>tillage[j]]=0
-    }else if(crop[j] == "fodder"){
-      #The GAI function core in the case of fodder also loses all the biomass at harves
-      GAImax=min(10,0.0004615385*yield[j]); #for fodder rape, from https://www.agronomysociety.org.nz/files/2010_11._Seed_yield_of_forage_rape.pdf
-      GAI<-c()
-      for(i in 1:length(day)){
+          #if(minimum_cover[j]>0){GAI[GAI<minimum_cover[j]]<-minimum_cover[j]}
+          #if(!is.na(tillage[j])){GAI[tillage[j]:length(day)]=0}
+
+          if(crop[j]=="root_crop"){ GAI[day>harvest[j]]=0} #root crops at harvest lose all the aboveground product.
+          # GAI[day>harvest[j]]=max(GAI)*0.2 #all crops at harvest lose most AG product, but retains 20% until tillage[j]. Modification by Lorenzo Menichetti
+          # GAI[day>tillage[j]]=0
+
+      }else if(crop[j] == "fodder"){
+        #The GAI function core in the case of fodder also loses all the biomass at harvest
+        GAImax=min(10,0.0004615385*yield[j]); #for fodder rape, from https://www.agronomysociety.org.nz/files/2010_11._Seed_yield_of_forage_rape.pdf
+        GAI<-c()
+        for(i in 1:length(day)){
         if (day[i]>seeding[j]){GAI[i]=(GAImax)/(1+exp(-((day[i]-seeding[j])-(harvest[j]-seeding[j])/2)/10))}
         if (day[i]<=seeding[j]){GAI[i]=0}
         if (day[i]>harvest[j]){GAI[i]<-0}
@@ -90,11 +94,11 @@ GAI<-function(yield, crop, year, variance, seeding, harvest, tillage, minimum_co
         if(!is.na(tillage[j])){GAI[tillage[j]:length(day)]=0}
 
         }
-    }else if(crop[j] == "fodder_maize"){
-      #The GAI function core in the case of fodder, such as silage maize, it also loses all the biomass at harves
-      GAImax=min(10,(1/0.8)*0.000533*yield[j]);
-      GAI<-c()
-      for(i in 1:length(day)){
+      }else if(crop[j] == "fodder_maize"){
+        #The GAI function core in the case of fodder, such as silage maize, it also loses all the biomass at harvest
+        GAImax=min(10,(1/0.8)*0.000533*yield[j]);
+        GAI<-c()
+        for(i in 1:length(day)){
         if (day[i]>seeding[j]){GAI[i]=(GAImax)/(1+exp(-((day[i]-seeding[j])-(harvest[j]-seeding[j])/2)/10))}
         if (day[i]<=seeding[j]){GAI[i]=0}
         if (day[i]>harvest[j]){GAI[i]<-0}
@@ -106,7 +110,7 @@ GAI<-function(yield, crop, year, variance, seeding, harvest, tillage, minimum_co
         if(!is.na(tillage[j])){GAI[tillage[j]:length(day)]=0}
 
       }
-    }else if (crop[j]=='ley'){
+      }else if (crop[j]=='ley'){
 
         if(exists("harvest2") & harvest2[j]>0){ # in case there is a second harvest
           GAI<-rep(minimum_cover[j], length(day))
@@ -140,13 +144,11 @@ GAI<-function(yield, crop, year, variance, seeding, harvest, tillage, minimum_co
 
           }# end of the environment where harvest2 does not exist
 
-    } else if (crop[j]=='missing'){
-      GAI<-c()
-      for(i in 1:length(day)){
-        GAI[i]<-0
-      }
-    }
-    else{stop(paste(" position",j, ", crop:",crop[j],"
+
+      }else if (crop[j]=='missing'){
+        GAI<-c()
+        for(i in 1:length(day)){GAI[i]<-0}
+      }else{stop(paste(" position",j, ", crop:",crop[j],"
                    There are values in the crop list not following the specifications
                    Only admissible values are:
                    -NA
