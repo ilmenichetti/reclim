@@ -2,22 +2,23 @@
 % Please edit documentation in R/re_crop.R
 \name{FC}
 \alias{FC}
-\title{FC
-internal function for determining the soil field capacity, uses  Toth B, Weynants M, Nemes A, Mak? A, Bilas G, T?th G. New generation of hydraulic pedotransfer functions for Europe. Eur J Soil Sci. 2015;66: 226-238. doi:10.1111/ejss.12192}
+\title{internal function for determining the soil field capacity}
 \usage{
 FC(sand, SOC)
 }
 \arguments{
-\item{sand}{sand %}
+\item{sand}{sand \%}
 
-\item{SOC}{dSOC %}
+\item{SOC}{SOC \%}
 }
 \value{
 a single numerical value with the soil field capacity
 }
 \description{
-FC
-internal function for determining the soil field capacity, uses  Toth B, Weynants M, Nemes A, Mak? A, Bilas G, T?th G. New generation of hydraulic pedotransfer functions for Europe. Eur J Soil Sci. 2015;66: 226-238. doi:10.1111/ejss.12192
+internal function for determining the soil field capacity
+}
+\references{
+Tóth, B., M. Weynants, A. Nemes, A. Makó, G. Bilas, and G. Tóth. 2015. “New Generation of Hydraulic Pedotransfer Functions for Europe: New Hydraulic Pedotransfer Functions for Europe.” European Journal of Soil Science 66 (1): 226–38. https://doi.org/10.1111/ejss.12192.
 }
 \author{
 Lorenzo Menichetti \email{ilmenichetti@gmail.com}

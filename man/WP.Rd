@@ -2,23 +2,25 @@
 % Please edit documentation in R/re_crop.R
 \name{WP}
 \alias{WP}
-\title{WP
-Internal function for determining the soil wilting point}
+\title{Internal function for determining the soil wilting point}
 \usage{
 WP(sand, clay, SOC)
 }
 \arguments{
-\item{sand}{sand %}
+\item{sand}{sand content \%}
 
-\item{clay}{clay % (optional)}
+\item{clay}{clay content \% (optional)}
 
-\item{SOC}{dSOC %}
+\item{SOC}{SOC content\%}
 }
 \value{
 a single numerical value with the soil wilting point
 }
 \description{
-uses  Toth B, Weynants M, Nemes A, Mak? A, Bilas G, T?th G. New generation of hydraulic pedotransfer functions for Europe. Eur J Soil Sci. 2015;66: 226-238. doi:10.1111/ejss.12192
+Internal function for determining the soil wilting point
+}
+\references{
+Tóth, B., M. Weynants, A. Nemes, A. Makó, G. Bilas, and G. Tóth. 2015. “New Generation of Hydraulic Pedotransfer Functions for Europe: New Hydraulic Pedotransfer Functions for Europe.” European Journal of Soil Science 66 (1): 226–38. https://doi.org/10.1111/ejss.12192.
 }
 \author{
 Lorenzo Menichetti \email{ilmenichetti@gmail.com}

@@ -4,15 +4,26 @@
 \alias{reclim}
 \title{Wrapper for the functions calculating the ICBM climate scaling factors}
 \usage{
-reclim(weather, aboveground, sun.mode, latitude, altitude, depth,
-  sand = NULL, clay = NULL, ave_SOC = NULL, porosity = NULL,
-  wilting_point = NULL, field_capacity = NULL)
+reclim(
+  weather,
+  aboveground,
+  sun.mode,
+  latitude,
+  altitude,
+  depth,
+  sand = NULL,
+  clay = NULL,
+  ave_SOC = NULL,
+  porosity = NULL,
+  wilting_point = NULL,
+  field_capacity = NULL
+)
 }
 \arguments{
-\item{weather}{data matrix of weather data, must be exactly in the format of the templates attached as example and contain the following headers:
+\item{weather}{data matrix of weather data, must be exactly in the format of the  \link{template} attached as example and contain the following headers:
 ("date", "year", "month", "day", "air_temp_deg_C", "precipitation_mm", "windspeed_kmh", "humidity_percent", "Rsolar_lang")}
 
-\item{aboveground}{data matrix of weather data, must be exactly in the format of the templates attached as example and contain the following headers:
+\item{aboveground}{data matrix of weather data, must be exactly in the format of the  \link{template} attached as example and contain the following headers:
 ("year", "crop_description", "crop_id", "treat", "variance", "seeding", "harvest", "harvest2", "tillage", "minimum_cover", "total_dm_kg_ha", "total_dm_kg_ha2" )
 "harvest2" and "total_dm_kg_ha2" are optional and used in case of a double cut for leys}
 
@@ -40,10 +51,9 @@ reclim(weather, aboveground, sun.mode, latitude, altitude, depth,
 
 }
 \description{
-This functions runs the re_clim calculation on a dataset (composed by two different tables, one daily for weather and one annual for aboveground biomass)
+This functions runs the re_clim calculation on a dataset (composed by two different tables, one daily for weather and one annual for aboveground biomass, please refer to the \link{template} for the data structure)
 The function is a wrapper, performing a few data checks and running functions to calculate several parameters
-and hopefully runs without the user having to bother too much with intermediate steps
-The package is experimental and might contain several unspotted bugs, so please be careful and report any bug to the author.
+and hopefully runs without the user having to bother too much with intermediate steps.
 }
 \examples{
 

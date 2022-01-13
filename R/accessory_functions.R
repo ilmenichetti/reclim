@@ -12,7 +12,7 @@
 #' @param dataframe the weather data frame
 #' @param new.years the number of years you want to extend the weather data frame
 #'
-#' @return a table, same structure of \link{dataframe}
+#' @return a table, same structure of \link{template}
 #'
 #' @examples
 #'

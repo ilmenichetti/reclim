@@ -18,20 +18,20 @@ library("anytime")
 
 ### Roxygen documentation
 
+
 #reclim
 #'Wrapper for the functions calculating the ICBM climate scaling factors
 #'
-#'This functions runs the re_clim calculation on a dataset (composed by two different tables, one daily for weather and one annual for aboveground biomass)
+#'This functions runs the re_clim calculation on a dataset (composed by two different tables, one daily for weather and one annual for aboveground biomass, please refer to the \link{template} for the data structure)
 #'The function is a wrapper, performing a few data checks and running functions to calculate several parameters
-#'and hopefully runs without the user having to bother too much with intermediate steps
-#'The package is experimental and might contain several unspotted bugs, so please be careful and report any bug to the author.
+#'and hopefully runs without the user having to bother too much with intermediate steps.
 #'
 #' @author Lorenzo Menichetti \email{ilmenichetti@@gmail.com}
 #'
-#' @param weather data matrix of weather data, must be exactly in the format of the templates attached as example and contain the following headers:
+#' @param weather data matrix of weather data, must be exactly in the format of the  \link{template} attached as example and contain the following headers:
 #'  ("date", "year", "month", "day", "air_temp_deg_C", "precipitation_mm", "windspeed_kmh", "humidity_percent", "Rsolar_lang")
 #'
-#' @param aboveground data matrix of weather data, must be exactly in the format of the templates attached as example and contain the following headers:
+#' @param aboveground data matrix of weather data, must be exactly in the format of the  \link{template} attached as example and contain the following headers:
 #'  ("year", "crop_description", "crop_id", "treat", "variance", "seeding", "harvest", "harvest2", "tillage", "minimum_cover", "total_dm_kg_ha", "total_dm_kg_ha2" )
 #'  "harvest2" and "total_dm_kg_ha2" are optional and used in case of a double cut for leys
 #' @param sun.mode mode of sun data, can be either "Rsolar" (expressed in Langleys) or "cloudiness" (expressed in percent of sunny time per day)
@@ -66,111 +66,6 @@ reclim <-
            wilting_point=NULL, field_capacity=NULL)
   { ... }
 
-
-
-#reclim_annual
-#'Just averaging the daily output from reclim to annual values
-#'
-#' @author Lorenzo Menichetti \email{ilmenichetti@@gmail.com}
-#'
-#' @param results_daily table with the first element of the list output from reclim
-#'
-#' @return a table
-#'
-#' @examples
-#'
-#'reclim_annual(reclim_out$results_daily)
-#'
-#' @export
-reclim_annual <-
-  function(results_daily)
-  { ... }
-
-#reclim_diagnostic_plots
-#'Just averaging the daily output from reclim to annual values
-#'
-#' @author Lorenzo Menichetti \email{ilmenichetti@@gmail.com}
-#'
-#' @param results_list list with the output from reclim
-#' @param output_to_file TRUE/FALSE parameter to write the output on a file. if FALSE (default) the output goes on screen
-#'
-#' @return a series of plots, either on screen or on file
-#'
-#' @examples
-#'
-#'reclim_annual(reclim_out$results_daily)
-#'
-#' @export
-reclim_diagnostic_plots <-
-  function(results_list, output_to_file=F)
-  { ... }
-
-
-
-
-# datasets
-#' just some random test data used to test the reclim package
-#'
-#' Data are fictional, generated from real measured data but with a great deal of noise added
-#'
-#' @format two data frames.
-#' First dataframe, weather, with 5114 rows and 9 variables:
-#' \describe{
-#'   \item{date}{date vector, YYYY-mm-dd}
-#'   \item{year}{year, integer}
-#'   \item{month}{month, integer}
-#'   \item{day}{day, integer}
-#'   \item{air_temp_deg_C}{mean daily air temperature, in cat('\u00B0')C}
-#'   \item{precipitation_mm}{cumulated daily precipitation, in mm}
-#'   \item{windspeed_kmh}{mean daily wind speed, in km/h}
-#'   \item{humidity_percent}{mean daily air humidity, in \%}
-#'   \item{Rsolar}{solar radiation, in this case in Langleys. Can be also cloudiness, in hours of sun per day}
-#'   ...
-#' }
-#' Second dataframe, weather, with 28 rows and 12 variables:
-#' \describe{
-#'   \item{year}{date vector, YYYY-mm-dd}
-#'   \item{crop_description}{year, integer}
-#'   \item{crop_id}{month, integer}
-#'   \item{treat}{day, integer}
-#'   \item{variance}{variance of the biomass distibution function, in days}
-#'   \item{seeding}{seeding day, in day of year}
-#'   \item{harvest}{first harves day, in day of year}
-#'   \item{harvest2}{second harvest day (if present, for lay), in day of year}
-#'   \item{tillage}{tillage day, in day of year}
-#'   \item{minimum_cover}{minimum biomass on the ground all the time, kg of dry mass per ha}
-#'   \item{total_dm_kg_ha}{aboveground biomass of first harvest, kg of dry mass per ha}
-#'   \item{total_dm_kg_ha2}{aboveground biomass of second harvest (if present, for lay), kg of dry mass per ha}
-#'   ...
-#' }
-#'
-#' @examples
-#' data(aboveground_testdata)
-#' data(weather_testdata)
-#'
-#' @name test_datasets
-#' @docType data
-#' @author Lorenzo Menichetti \email{ilmenichetti@@gmail.com}
-
-
-
-
-
-
-
-
-
-
-#test lines to load the data
-# library(gdata)
-# weather<-read.xls("../data.xlsx", sheet = 1)
-# aboveground<-read.xls("../data.xlsx", sheet = 2)
-# latitude=44
-# altitude=20
-# sand=22
-# clay=36
-# ave_SOC=1.2
-# depth=20
 
 reclim <- function(weather, #table
                    aboveground, #table
@@ -536,3 +431,50 @@ reclim_diagnostic_plots<-function(results_list, output_to_file=F){
 }
 
 
+
+
+# datasets
+#' template data used to test the reclim package
+#'
+#' @name templates
+#' @docType data
+#' @author Lorenzo Menichetti \email{ilmenichetti@@gmail.com}
+#'
+#'
+#' @format two data frames.
+#' Data are fictional, generated from real measured data but with a great deal of noise added.
+#' First dataframe (daily climatic values), with 5114 rows and 9 variables:
+#' \describe{
+#'   \item{date}{date vector, YYYY-mm-dd}
+#'   \item{year}{year, integer}
+#'   \item{month}{month, integer}
+#'   \item{day}{day, integer}
+#'   \item{air_temp_deg_C}{mean daily air temperature (°C)}
+#'   \item{precipitation_mm}{cumulated daily precipitation, in mm}
+#'   \item{windspeed_kmh}{mean daily wind speed, in km/h}
+#'   \item{humidity_percent}{mean daily air humidity, in \%}
+#'   \item{Rsolar}{solar radiation, in this case in Langleys. Can be also cloudiness, in hours of sun per day}
+#'   ...
+#' }
+#' Second dataframe (annual crop data), with 28 rows and 12 variables:
+#' \describe{
+#'   \item{year}{date vector, YYYY-mm-dd}
+#'   \item{crop_description}{year, integer}
+#'   \item{crop_id}{month, integer}
+#'   \item{treat}{day, integer}
+#'   \item{variance}{variance of the biomass distibution function, in days}
+#'   \item{seeding}{seeding day, in day of year}
+#'   \item{harvest}{first harves day, in day of year}
+#'   \item{harvest2}{second harvest day (if present, for lay), in day of year}
+#'   \item{tillage}{tillage day, in day of year}
+#'   \item{minimum_cover}{minimum biomass on the ground all the time, kg of dry mass per ha}
+#'   \item{total_dm_kg_ha}{aboveground biomass of first harvest, kg of dry mass per ha}
+#'   \item{total_dm_kg_ha2}{aboveground biomass of second harvest (if present, for lay), kg of dry mass per ha}
+#'   ...
+#' }
+#'
+#' @examples
+#' data(aboveground_testdata)
+#' data(weather_testdata)
+#'
+NULL

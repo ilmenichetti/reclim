@@ -2,8 +2,7 @@
 % Please edit documentation in R/re_crop.R
 \name{re_temperature}
 \alias{re_temperature}
-\title{re_temperature
-internal function for determining the dependence of decompositono over soil temperature, sources from}
+\title{internal function for determining the dependence of decomposition over soil temperature}
 \usage{
 re_temperature(soilT)
 }
@@ -14,8 +13,13 @@ re_temperature(soilT)
 a vector with the daily water reduction values
 }
 \description{
-re_temperature
-internal function for determining the dependence of decompositono over soil temperature, sources from
+internal function for determining the dependence of decomposition over soil temperature
+}
+\details{
+in case of NAs in the inputs, the function attempts to fill them with a Stineman interpolation
+}
+\references{
+
 }
 \author{
 Lorenzo Menichetti \email{ilmenichetti@gmail.com}

@@ -12,7 +12,7 @@ add.years(dataframe, new.years)
 \item{new.years}{the number of years you want to extend the weather data frame}
 }
 \value{
-a table, same structure of \link{dataframe}
+a table, same structure of \link{template}
 }
 \description{
 This function extrapolate future climate based on the average of the past 10 years (or less if less are presente)

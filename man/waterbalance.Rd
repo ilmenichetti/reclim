@@ -2,10 +2,9 @@
 % Please edit documentation in R/re_crop.R
 \name{waterbalance}
 \alias{waterbalance}
-\title{waterbalance
-Internal function for the water balance model}
+\title{Internal function for the water balance model}
 \usage{
-waterbalance(twilt, tfield, precipitation, GAI, date, ET0, L)
+waterbalance(twilt, tfield, precipitation, GAI, date, ET0, L, alpha = 0.7)
 }
 \arguments{
 \item{twilt}{wilting point (0 to 1)}
@@ -23,11 +22,34 @@ waterbalance(twilt, tfield, precipitation, GAI, date, ET0, L)
 \item{L}{soil depth (mm)}
 }
 \value{
-a data frame with water balance and date (days)
+The function returns a data frame with water balance and date (days)
 }
 \description{
-waterbalance
 Internal function for the water balance model
+}
+\details{
+The formulas come mainly from  Allen et al., 1998 \url{https://www.fao.org/3/x0490e/x0490e00.htm} and it is used to simulate the soil water balance.
+The calculation is done through multiple steps, iterated for each timestep:
+
+\emph{Step 1: Soil water W is initialized assuming saturation, based on the depth L and volumetric capacity}
+\deqn{W[1] = \Theta_f \cdot L }
+\emph{Step 2: The single crop coefficient Kc is calculated based on GAI}
+\deqn{K_c=1.3-0.5 \cdot exp(-0.17 \cdot GAI)}
+\emph{Step 3: calculation of crop evapotranspiration (ETc) under standard condition}
+\deqn{ET_c=ET_0 \cdot K_c}
+\emph{Step 4:  the intercepted water It is calculated based on crop ET, GAI and precipitation P}
+\deqn{It=min(P,ET_c,0.2 \cdot GAI)}
+\emph{Step 5:  potential evapotraspiration is calculated}
+\deqn{ E_{pot}=(ET_c-It)}
+\emph{Step 6:  Calculation of the percolation. Water (W_b, water bypass) is lost when above field capacity, but allowing saturation for one day}
+\deqn{W_b = max(0, W-(\Theta_f \cdot L))}
+\emph{Step 7:  Soil evaporation reduction coefficient}
+\deqn{Kr=(1-(0.95 \cdot tfield-\Theta)/(0.95 \cdot tfield-\alpha \cdot twilt))^2}
+Subsequent conditions are applied so that Kr cannot be above one, and the values before the minimum Kr are also zero.
+\emph{Step 8:  Actual evapotraspiration is calculated}
+\deqn{E_{act}=E_{pot} \cdot Kr }
+\emph{Step 9:  The water balance is calculated (stepwise)}
+\deqn{ W[i+1]=W[i]+P[i]-E_{act}[i]-It-W_b[i]}
 }
 \examples{
 
