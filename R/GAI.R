@@ -7,8 +7,8 @@
 
 #GAI
 #' Internal function to calculate the GAI (Green Area Index) based on yields and agronomical data.
-#' @description  The function distributes the biomass growth (considering its proxy GAI) according to a gaussian function with parameters defined relatively to the crop.
-#' It is used for determining the effect of increased ET due to the presence of plant.
+#' @description  The function distributes the biomass growth (considering its proxy GAI and LAI) according to a gaussian function with parameters defined relatively to the crop.
+#' It is used for determining the effect of increased ET due to the presence of plant and the effect of shading on soil temperature.
 #'
 #' @author Lorenzo Menichetti \email{ilmenichetti@@gmail.com}
 #'
@@ -24,39 +24,46 @@
 #' @param harvest2 OPTIONAL, in case there is more than one harvest per year (days)
 #'
 #' @return
+#' A data frame of 5 variables: \code{date}, \code{GAI}, \code{crop}, \code{yields_at_harvest} and \code{LAI}.
+#' The other dimension of the data frame is as long as the combination of the treatments and the days of the simulation.
 #'
 #' @details
 #' The function relies on an input matrix which must follow a precise format, please refer to the attached \link{template}.
 #'
 #' The function is used to simulate the development of crops and their green area index (G.A.I.). The function uses among the inputs a vector of different crops, which will be simulated with different parameters.
-#' These are "spring_small_grains", "spring_oil_seeds","winter_small_grains", "winter_oil_seeds","root_crop", "fodder", "fodder maize" and "ley". The function loops in annual steps through the years of the simulation
-#' and then runs a nested loop to simulate the crop growth in daily steps. The function nitially calls the \link{is.leapyear} function to decide if to use 365 or 366 days in the simulation. Different crops are simulated
+#' These are \code{spring_small_grains}, \code{spring_oil_seeds}, \code{winter_small_grains}, \code{winter_oil_seeds},\code{root_crop}, \code{fodder}, \code{fodder maize} and \code{ley}. The function loops in annual steps through the years of the simulation
+#' and then runs a nested loop to simulate the crop growth in daily steps. The function initially calls the \link{is.leapyear} function to decide if to use 365 or 366 days in the simulation. Different crops are simulated
 #' in different ways.
+#' The functions returns also the LAI, calculated as \deqn{0.8 \cdot GAI} until maximum GAI. After maximum GAI, before harvest the LAI is set to never fall below \deqn{0.7 \cdot max(LAI)}, and between harvest and tillage never below \deqn{0.2 \cdot max(LAI)} according to Kätterer & Andrén 2009.
 #'
 #' First of all the function checks if the crop of that year is not "fodder", "fodder maize" or "ley". if not, then sets the maximum GAI (j is the index used in the main function loop, looping through the simulation years):
 #'  \deqn{GAI_{max}=0.0129 \cdot (\frac{yield_j}{1000})^2 + 0.1964 \cdot(\frac{yield_j}{1000})}
 #' For root crops the maximum GAI is set differently (see below the specific section)
 #' The function then proceeds to simulate the growth according to a gausssian function subsequently modified. The gaussian function is controlled by the parameters defining where it is centered and its variance.
 #' Its center is calculated according to seeding and harvest dates, which are in the input data. Then the GAI outside the area covered by such function is either set to zero or to the minimum coverage specified in the input data.
-#' The main function used to simulate the crop growth is the following, after having calculated the center of the gaussian with #' \deqn{middle=seeding_j + \frac{harvest_j-seeding_j}{2}}:
+#' The main function used to simulate the crop growth, after first having calculated the center of the gausian with
+#' \deqn{middle=seeding_j + \frac{harvest_j-seeding_j}{2}}
+#' is the following:
 #' \deqn{GAI=GAI_{max} \cdot exp(-\frac{(day-middle)^2)}{(2\cdot variance_j)})}
 #' Most crops are considered covering the soil even after being fully mature, except root crops fodder (including silage maize). Please not that this does not imply that such crops are returned as C inputs to the soil in the ICBM model, this
 #' concerns just the calculation of the climatic reduction coefficients.
 #'
 #' ## Exceptions
-#' ### root_crops
-#' Root crops have a specific function, which is based on the average yields (yield_vec) and maximum LAI (LAI_max_vec) obtained in the Ultuna experiment during the three years when root crops were planted. The maximum GAI is also calculated with a different function:
+#' ### \code{root_crops}
+#' Root crops have a specific function, which is based on the average yields (yield_vec) and maximum LAI (LAI_max_vec) obtained in the Ultuna experiment during the three years when root crops were planted.
+#' The maximum GAI is also calculated with a different function:
 #' \deqn{GAI_{max}=min(5.6,\frac{1}{0.8} \cdot mean(\frac{LAI_max_vec}{yield_vec}) \cdot \frac{1}{0.75} \cdot yield_j)}
 #'
-#' ### fodder
-#' The maximum GAI is calculated according to data for fodder rape (https://www.agronomysociety.org.nz/files/2010_11._Seed_yield_of_forage_rape.pdf)
+#' ### \code{fodder}
+#' The maximum GAI is calculated according to data for fodder rape
+#' (https://www.agronomysociety.org.nz/files/2010_11._Seed_yield_of_forage_rape.pdf)
 #' \deqn{GAI_{max}=min(10,0.0004615385 \cdot yield_j)}
 #'
-#' ### fodder_maize
+#' ### \code{fodder_maize}
 #' The maximum GAI is calculated according to data from the Ultuna experiment, where silage maize has been planted since 2000
 #' \deqn{GAI_{max}=min(10,\frac{1}{0.8} \cdot 0.000533 \cdot yield_j)}
 #'
-#' ### ley
+#' ### \code{ley}
 #' Leys are complicated by the fact that there might be two subsequent cuts, so two harvests. The command considers this possibility with 2 optional parameters, harvest2 and yields2, which are otherwise set to NULL.
 #' If these two parameters are present another if condition takes care of them when they are not set to zero.
 #'
@@ -78,15 +85,14 @@
 #' @references
 #' W. Mazurczyk, Anna Teresa Wierzbicka, Anna Teresa Wierzbicka, C. Trawczyński,2009,. HARVEST INDEX OF POTATO CROP GROWN UNDER DIFFERENT NITROGEN AND WATER SUPPLY.
 #'
+#' T. Kätterer and O. Andrén, “Predicting daily soil temperature profiles in arable soils in cold temperate regions from air temperature and leaf area index,” Acta Agric. Scand. Sect. B - Plant Soil Sci., vol. 59, no. 1, pp. 77–86, 2009, doi: 10.1080/09064710801920321.
+#'
 #' @export
 GAI <-
   function(yield, crop, year, variance,
            seeding, harvest, tillage, minimum_cover,
            yield2=NULL, harvest2=NULL)
   { ... }
-
-
-
 
 
 
@@ -99,6 +105,7 @@ GAI<-function(yield, crop, year, variance, seeding, harvest, tillage, minimum_co
 
 
   GAI_list<-list()
+  LAI_list<-list()
   crop_list<-c("spring_small_grains", "spring_oil_seeds","winter_small_grains", "winter_oil_seeds","root_crop")
   # exception crops: "fodder", "missing", "ley"
 
@@ -223,6 +230,13 @@ GAI<-function(yield, crop, year, variance, seeding, harvest, tillage, minimum_co
     yield_long<-rep(0, length(day))
     yield_long[j]<-yield[j]
     GAI_list[[j]]<-data.frame(GAI,GAI_date, crop_long, yield_long)
+
+    #creating LAI
+    LAI<-GAI_list[[j]]$GAI*0.8
+    LAI[middle:harvest[j]][LAI[middle:harvest[j]]<(max(LAI)*0.7)]<-max(LAI)*0.7
+    #LAI[(harvest[j]-31):harvest[j]]<-max(LAI)*0.7
+    LAI[harvest[j]:tillage[j]]<-max(LAI)*0.2
+    LAI_list[[j]]<-data.frame(LAI,GAI_date, crop_long, yield_long)
     }
 
 
@@ -230,14 +244,17 @@ GAI<-function(yield, crop, year, variance, seeding, harvest, tillage, minimum_co
   GAI_date_long<-c()
   GAI_yield_long<-c()
   GAI_crop_long<-c()
+  LAI_long<-c()
+
   for(i in 1:length(GAI_list)){
     GAI_long<-append(GAI_long, GAI_list[[i]][,1])
     GAI_date_long<-append(GAI_date_long, GAI_list[[i]][,2])
     GAI_yield_long<-append(GAI_yield_long, GAI_list[[i]][,4])
     GAI_crop_long<-append(GAI_crop_long, as.character(GAI_list[[i]][,3]))
+    LAI_long<-append(LAI_long, LAI_list[[i]][,1])
   }
-  GAI_DF<-data.frame(GAI_date_long, GAI_long, GAI_crop_long, GAI_yield_long)
-  colnames(GAI_DF)<-c("date","GAI", "crop", "yield_at_harvest")
+  GAI_DF<-data.frame(GAI_date_long, GAI_long, GAI_crop_long, GAI_yield_long, LAI_long)
+  colnames(GAI_DF)<-c("date","GAI", "crop", "yield_at_harvest", "LAI")
 
   return(GAI_DF)
   }

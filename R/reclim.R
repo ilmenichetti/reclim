@@ -6,7 +6,6 @@
 # author : Lorenzo Menichetti
 # ilmenichetti@gmail.com
 # lorenzo.menichetti@slu.se
-# 10 April 2019
 
 #load the libraries
 library("zoo")
@@ -14,10 +13,8 @@ library("lubridate")
 library("imputeTS")
 library("RColorBrewer")
 library("anytime")
-#library("sirad")
 
 ### Roxygen documentation
-
 
 #reclim
 #'Wrapper for the functions calculating the ICBM climate scaling factors
@@ -26,7 +23,7 @@ library("anytime")
 #'The function is a wrapper, performing a few data checks and running functions to calculate several parameters
 #'and hopefully runs without the user having to bother too much with intermediate steps.
 #'
-#' @author Lorenzo Menichetti \email{ilmenichetti@@gmail.com}
+#' @author Lorenzo Menichetti \email{ilmenichetti@@gmail.com}, Martin Bolinder, Olaf Andrén, Thomas Kätterer
 #'
 #' @param weather data matrix of weather data, must be exactly in the format of the  \link{template} attached as example and contain the following headers:
 #'  ("date", "year", "month", "day", "air_temp_deg_C", "precipitation_mm", "windspeed_kmh", "humidity_percent", "Rsolar_lang")
@@ -35,7 +32,7 @@ library("anytime")
 #'  ("year", "crop_description", "crop_id", "treat", "variance", "seeding", "harvest", "harvest2", "tillage", "minimum_cover", "total_dm_kg_ha", "total_dm_kg_ha2" )
 #'  "harvest2" and "total_dm_kg_ha2" are optional and used in case of a double cut for leys
 #' @param sun.mode mode of sun data, can be either "Rsolar" (expressed in Langleys) or "cloudiness" (expressed in percent of sunny time per day)
-#' @param latitude well, the latitude, in degrees
+#' @param latitude the latitude, in degrees
 #' @param altitude altitude in meters
 #' @param depth depth considered in centimeters
 #' @param sand sand, in \%. This is needed if porosity, wilting point and field capacity are not specified

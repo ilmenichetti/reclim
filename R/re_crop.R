@@ -98,6 +98,7 @@ FC<-function(sand, SOC){
 #' @param GAI green area index daily values
 #' @param date date vector (daily steps)
 #' @param temperature air temperature (°C)
+#' @param LAI (optional) LAI. If not present LAI is calculated only according to LAI=0.8*GAI, otherwise LAI is used directly
 #'
 #' @details
 #' The function calculates first the surface temperature. If the temperature is below zero:
@@ -107,6 +108,7 @@ FC<-function(sand, SOC){
 #' And then calculates the soil temperature according to:
 #' \deqn{T_{soil_{i+1}}=T_{soil_i} + (T_{surface_i} - T_{soil_i}) \cdot 0.24 \cdot e^{(-Z_{depth} \cdot 0.017)} \cdot exp(-0.15 \cdot GAI_i)}
 #' And where \deqn{Z_{depth}=\frac{L}{20}}
+#' The LAI is calculated as \dfunc{LAI= 0.8 \cdot GAI}
 #'
 #' @return a vector with the daily soil temperature values
 #'
@@ -119,13 +121,13 @@ FC<-function(sand, SOC){
 soiltemp <-
   function(L, GAI, date, temperatur)
   { ... }
-soiltemp<-function(L, GAI, date, temperature){
+soiltemp<-function(L, GAI, date, temperature, LAI=NULL){
 
   #This functions comes from K?tterer and Andr?n (2008), where L=thickness of topsoil (mm), Zdepth is defined as the mean depth of the topsoil layer (cm), i., midpoint soil depth & and the relationship using LAI = 0.8 x GAI can be seen in Fig. 1 of this publication
   Zdepth=L/20;
 
 
-  LAI=0.8*GAI;
+  if(is.null(LAI)){LAI=0.8*GAI}
   Tsurface<-c()
   soilT<-c()
   soilT[1]<-0

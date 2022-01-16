@@ -32,6 +32,7 @@ GAI_test<-GAI(yield=selected_aboveground$total_dm_kg_ha, crop=selected_abovegrou
   seeding=selected_aboveground$seeding, harvest=selected_aboveground$harvest, tillage=selected_aboveground$tillage, minimum_cover=selected_aboveground$minimum_cover)
 
 plot(GAI_test$date, GAI_test$GAI, type="l")
+lines(GAI_test$date, GAI_test$LAI, type="l", lty=2)
 
 selected_aboveground<-selected_aboveground[4,]
 GAI_test<-GAI(yield=selected_aboveground$total_dm_kg_ha, crop=selected_aboveground$crop_id, year=selected_aboveground$year, variance=selected_aboveground$variance,
@@ -46,3 +47,6 @@ text( GAI_test$date[selected_aboveground$tillage]-10, 0.4,"tillage",srt=90,pos=1
 abline(v=GAI_test$date[selected_aboveground$harvest], col="red", lty=2)
 text( GAI_test$date[selected_aboveground$harvest]-10, 0.4,"harvest",srt=90,pos=1, col="red")
 dev.off()
+
+names(GAI_test)
+

@@ -29,7 +29,7 @@ reclim(
 
 \item{sun.mode}{mode of sun data, can be either "Rsolar" (expressed in Langleys) or "cloudiness" (expressed in percent of sunny time per day)}
 
-\item{latitude}{well, the latitude, in degrees}
+\item{latitude}{the latitude, in degrees}
 
 \item{altitude}{altitude in meters}
 
@@ -69,5 +69,5 @@ reclim_out<-reclim(weather=weather_testdata,
 
 }
 \author{
-Lorenzo Menichetti \email{ilmenichetti@gmail.com}
+Lorenzo Menichetti \email{ilmenichetti@gmail.com}, Martin Bolinder, Olaf Andrén, Thomas Kätterer
 }
