@@ -47,9 +47,6 @@ reclim(
 
 \item{field_capacity}{field capacity , as mm over the total. If speciefied with wilting point and porosity there's no need for other soil edaphic properties.}
 }
-\value{
-
-}
 \description{
 This functions runs the re_clim calculation on a dataset (composed by two different tables, one daily for weather and one annual for aboveground biomass, please refer to the \link{template} for the data structure)
 The function is a wrapper, performing a few data checks and running functions to calculate several parameters

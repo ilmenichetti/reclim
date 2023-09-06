@@ -18,9 +18,6 @@ internal function for determining the dependence of decomposition over soil temp
 \details{
 in case of NAs in the inputs, the function attempts to fill them with a Stineman interpolation
 }
-\references{
-
-}
 \author{
 Lorenzo Menichetti \email{ilmenichetti@gmail.com}
 }

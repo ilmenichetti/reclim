@@ -1,12 +1,20 @@
 ---
-title: "reclim: calculating climate scaling factors for the ICBM SOC model"
+title: "r_clim: calculating climate scaling factors for the ICBM SOC model"
 author: "Lorenxo Menichetti"
 date: "`r Sys.Date()`"
-output: rmarkdown::html_vignette
+output:
+  pdf_document:
+    highlight: null
+    number_sections: yes
+  knitr:::html_vignette:
+    toc: true
+    css: custom.css
+    fig_caption: yes
+bibliography: references.bib  
 vignette: >
   %\VignetteIndexEntry{Vignette Title}
-  %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
+  %\VignetteEngine{knitr::rmarkdown}
 ---
 
 ```{r setup, include = FALSE}
@@ -17,10 +25,11 @@ knitr::opts_chunk$set(
 ```
 
 # Introduction
-The 
+The package `r_clim` is a collection of functions to calculate the climate scaling effect. (due to soil moisture and temperature) on the decomposition of soil organic matter (SOC). The functions are intended as companion of the ICBM model [@kattererICBMFamilyAnalytically2001] where they are used to rescale the two pools kinetics, but can be utilized to rescale any SOC decomposition process kinetic (for example as in @menichettiGenericParametersFirstorder2019 where the same scaling has been applied to the microbial kinetic term in the Q decomposition model) or to normalize for the effects of such covariates in laboratory studies.  
+In this vignette we will first describe the steps of the calculation, and then introduce an example of possible usage, based on an example dataset.  
 
 # The steps in the calculation
-![A bird's eye view of the procedure to calculate the climatic reduction coefficients](./man/figures/re_Clim_schema_reduced.png)
+![A bird's eye view of the procedure to calculate the climatic reduction coefficients](./man/figures/re_Clim_schema_reduced.png){width=80%}
 
 ## Soil temperature 
 
@@ -29,25 +38,33 @@ The
 ## Biomass phenology functions (G.A.I. estimates)
 
 ## Soil water balance
-The steps of the calculation are already described in the manual, but here we will examine some of them in more detail.
+The steps of the calculation are already described in the package manual, but here we will examine some of them in more detail.  
+  
 Step 1: Soil water W is initialized assuming saturation, based on the depth L and volumetric capacity  
 $W[1] = \Theta_f \cdot L$  
+ 
 Step 2: The single crop coefficient Kc is calculated based on GAI  
 $K_c=1.3-0.5 \cdot exp(-0.17 \cdot GAI)$  
+  
 Step 3: calculation of crop evapotranspiration (ETc) under standard condition  
 $ET_c=ET_0 \cdot K_c$  
 Step 4:  the intercepted water It is calculated based on crop ET, GAI and precipitation P  
 $It=min(P,ET_c,0.2 \cdot GAI)$  
+  
 Step 5:  potential evapotraspiration is calculated  
 $E_{pot}=(ET_c-It)$  
+  
 Step 6:  Calculation of the percolation. Water (W_b, water bypass) is lost when above field capacity, but allowing saturation for one day  
 $W_b = max(0, W-(\Theta_f \cdot L))$  
+  
 Step 7:  Soil evaporation reduction coefficient  
 $Kr=\left(1-\frac{0.95 \cdot \Theta_{field}-\Theta}{0.95 \cdot \Theta_{field}-\alpha \cdot \Theta_{wilt}}\right)^2$  
 This function expresses the actual evaporation, and in it it is considered that even below wilting point there is some biological activity. The function is zero below wilting point.  
-A subsequent conditions is applied so that Kr cannot be above one.
+A subsequent conditions is applied so that Kr cannot be above one.  
+  
 Step 8:  Actual evapotraspiration is calculated  
-$E_{act}=E_{pot} \cdot Kr$  
+$E_{act}=E_{pot} \cdot Kr$    
+
 Step 9:  The water balance is calculated (stepwise)  
 $W[i+1]=W[i]+P[i]-E_{act}[i]-It-W_b[i]$  
 
@@ -59,50 +76,80 @@ $W[i+1]=W[i]+P[i]-E_{act}[i]-It-W_b[i]$
 
 ## Normalization and averaging
 
-Vignettes are long form documentation commonly included in packages. Because they are part of the distribution of the package, they need to be as compact as possible. The `html_vignette` output type provides a custom style sheet (and tweaks some options) to ensure that the resulting html is as small as possible. The `html_vignette` format:
 
-- Never uses retina figures
-- Has a smaller default figure size
-- Uses a custom CSS stylesheet instead of the default Twitter Bootstrap style
+## Example 
+First we need to install the package from its GitHub repository, for which we need to rely on the package `devtools`.  
 
-## Vignette Info
+```{r,  include = FALSE} 
+#installing the R package
+library(devtools)
+#install_github("ilmenichetti/reclim", force=T)
 
-Note the various macros within the `vignette` section of the metadata block above. These are required in order to instruct R how to build the vignette. Note that you should change the `title` field and the `\VignetteIndexEntry` to match the title of your vignette.
+#load the package
+library(re)
+library(plyr)
+library(RColorBrewer)
 
-## Styles
-
-The `html_vignette` template includes a basic CSS theme. To override this theme you can specify your own CSS in the document metadata as follows:
-
-    output: 
-      rmarkdown::html_vignette:
-        css: mystyles.css
-
-## Figures
-
-The figure sizes have been customised so that you can easily put two images side-by-side. 
-
-```{r, fig.show='hold'}
-plot(1:10)
-plot(10:1)
 ```
 
-You can enable figure captions by `fig_caption: yes` in YAML:
+We can then proceed to load the test site data and reorganize them averaging by treatment (since in this example we are interested in calculating the average $r_clim$ factor. The test data are included in the /data folder of this package.
 
-    output:
-      rmarkdown::html_vignette:
-        fig_caption: yes
+Now we run the reclim command to calculate the r_clim factor:
+```{r} 
+# #calculate the re_clim (daily values, all treatments)
+Test_reclim_out<-reclim(weather=weather_testdata,
+                         aboveground=aboveground_testdata,
+                         latitude=58,
+                         altitude=83,
+                         sand=8,
+                         clay=43,
+                         ave_SOC=1.9,
+                         depth=20,
+                         sun.mode="Rsolar")
+```
+Ok, the calculation seems to be running.  
+  
+The output of the function is fairly complicated list with most outputs from the internal functions. We can for eample have a look at the structure of the rescaled $r_clim$ value, which is usually the main target value:
 
-Then you can use the chunk option `fig.cap = "Your figure caption."` in **knitr**.
-
-## More Examples
-
-You can write math expressions, e.g. $Y = X\beta + \epsilon$, footnotes^[A footnote here.], and tables, e.g. using `knitr::kable()`.
-
-```{r, echo=FALSE, results='asis'}
-knitr::kable(head(mtcars, 10))
+```{r} 
+str(Test_reclim_out$re_x1)
 ```
 
-Also a quote using `>`:
+Now we can try to plot some of the values we calculated, for example the GAI simulation:
+  
+```{r, fig.height = 6, fig.width = 7} 
+crop_id_used<-unique(Test_reclim_out$crop_id)
+palette_crop_id_used<-brewer.pal(length(crop_id_used), "Dark2")
 
-> "He who gives up [code] safety for [code] speed deserves neither."
-([via](https://twitter.com/hadleywickham/status/504368538874703872))
+plot(Test_reclim_out$PET$date, Test_reclim_out$GAI[2,], type="l", ylim=c(0, max(Test_reclim_out$GAI[2,])*1.3), xlab="date", ylab="GAI")
+
+#coloring the output based on the crop
+for(i in 1:length(crop_id_used)){
+  which_ones<-which(!Test_reclim_out$crop_id==crop_id_used[i])
+  GAI_crop<-Test_reclim_out$GAI[2,]
+  GAI_crop[which_ones]<-NA
+  lines(Test_reclim_out$PET$date, GAI_crop, col=palette_crop_id_used[i])
+}
+legend("topright", as.character(crop_id_used), col=palette_crop_id_used, bty="n", lty=1)
+```
+  
+```{r,fig.height = 4, fig.width = 7} 
+plot(Test_reclim_out$PET$date, Test_reclim_out$re_crop[1,], type="l",xlab="date", ylab="r", main="First treatment (CONVENTIONAL)")
+```
+  
+The package includes also a function to calculate the annual averages from the inputs of the main function:
+
+```{r} 
+
+#calculate annual re-clim values
+Test_annual<-reclim_annual(Test_reclim_out$results_daily)
+where_re_crop<-grepl("re_crop.", as.character(colnames(Test_annual)))
+Test_annual_re_crop<-(Test_annual[where_re_crop])
+```
+
+
+```{r,fig.height = 4, fig.width = 7} 
+plot(Test_annual_re_crop$re_crop_treat.CONVENTIONAL, type="l",xlab="year", ylab="r", main="First treatment (CONVENTIONAL)")
+```
+
+# References

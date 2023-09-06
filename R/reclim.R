@@ -184,6 +184,22 @@ reclim <- function(weather, #table
   cat("## basic soil phisical data are present","\n")
 
 
+
+  #calculate porosity, wilting point and field capacity if missing
+  if(is.null(porosity)){
+    cat("porosity calculation","\n")
+    porosity<-poros(sand=sand/100, clay=clay/100, SOC=ave_SOC)
+  }
+  if(is.null(wilting_point)){
+    cat("wilting point calculation","\n")
+    wilting_point<-WP(sand=sand/100, clay=clay/100, SOC=ave_SOC)
+  }
+  if(is.null(field_capacity)){
+    cat("field capacity calculation","\n")
+    field_capacity<-FC(sand=sand/100, SOC=ave_SOC)
+  }
+
+
   ## calculating the climatic parameters, loop for treatments
 
   #PET
@@ -198,19 +214,6 @@ reclim <- function(weather, #table
                 sun.mode="Rsolar", # can be Rsolar, sunlight or cloudiness, latter two between 0 and 1
                 date=as.Date(weather$date))
 
-  #calculate porosity, wilting point and field capacity if missing
-  if(is.null(porosity)){
-    cat("porosity calculation","\n")
-    porosity<-poros(sand=sand/100, clay=clay/100, SOC=ave_SOC)
-    }
-  if(is.null(wilting_point)){
-    cat("wilting point calculation","\n")
-    wilting_point<-WP(sand=sand/100, clay=clay/100, SOC=ave_SOC)
-    }
-  if(is.null(field_capacity)){
-    cat("field capacity calculation","\n")
-    field_capacity<-FC(sand=sand/100, SOC=ave_SOC)
-    }
 
 
 
@@ -252,7 +255,6 @@ reclim <- function(weather, #table
                 yield2=selected_aboveground$total_dm_kg_ha2,
                 harvest2=selected_aboveground$harvest2)
 
-  GAI_tab[i,]<-GAI_calc$GAI
 
 
   #soil temperature
@@ -261,6 +263,8 @@ reclim <- function(weather, #table
                   L=depth*10,
                   GAI=GAI_calc$GAI)
   soilT_tab[i,]<-soilT
+
+
 
   #water balance simulation
   cat(paste("Water balance calculation for treatment",treatment,"\n"))
@@ -272,7 +276,7 @@ reclim <- function(weather, #table
                           date=GAI_calc$date,
                           L=depth*10)
   water_bal_tab[i,]<-water_bal$water
-  actevapo_tab[i,]<-water_bal$actevapo
+  actevapo_tab[i,]<-water_bal$Eact
 
   #re_wat
   cat(paste("re_wat calculation for treatment",treatment,"\n"))
@@ -294,6 +298,10 @@ reclim <- function(weather, #table
   re_crop=re_x1/0.1056855 #updated on new value, August 2021
   re_crop_tab[i,]<-re_crop
   re_x1_tab[i,]<-re_x1
+
+  GAI_tab[i,]<-GAI_calc$GAI
+  water_bal_tab[i,]<-water_bal$water
+  soilT_tab[i,]<-soilT
 
 
   } #end of loop for treatemtns
@@ -355,81 +363,6 @@ reclim_annual <- function(results_daily){
   }
 
 
-### collection of diagnostic plots
-reclim_diagnostic_plots<-function(results_list, output_to_file=F){
-
-  treatments<-rownames(results_list$GAI)
-
-  crop_palette<-brewer.pal(8, "Dark2")
-
-  if(output_to_file==TRUE){
-
-  for(j in 1:length(treatments)){
-    filename1<-paste("GAI_treatment_",j,".png", sep="")
-    png(file=filename1, res=300, height=1500, width=2300)
-  #plot the effect of the GAI function{
-    levels<-levels(results_list$crop_id)
-    date_range<-range(results_list$results_daily$date)
-    plot(results_list$results_daily$date, results_list$GAI[j,], type="l",  lty=2, xlab="Time", ylab="GAI", main=treatments[j])
-    for(i in 1:length(levels)){
-      GAI_loop<-results_list$GAI[j,]
-      GAI_loop[!results_list$crop_id==levels[i]]<-NA
-      lines(results_list$results_daily$date, GAI_loop, col=crop_palette[i])
-    }
-    legend("topleft", levels, col=crop_palette, lty=1, pch=NA, bty="n")
-    dev.off()
-
-    filename2<-paste("meteo_",j,".png", sep="")
-    png(file=filename2, res=300, height=3000, width=2300)
-    par(mfrow=c(2,1))
-    plot(results_list$results_daily$date, results_list$water_bal[j,], type="l",  lty=1, xlab="Time", ylab="Soil active water content (%)", main=treatments[j], col="darkblue")
-    plot(results_list$results_daily$date, results_list$soil_temp[j,], type="l",  lty=1, xlab="Time", ylab=expression(paste("Soil temperature (", degree,"C)")), main=treatments[j], col="firebrick")
-    dev.off()
-
-    filename3<-paste("reduction_factors_",j,".png", sep="")
-    png(file=filename3, res=300, height=4500, width=2300)
-    par(mfrow=c(3,1))
-    plot(results_list$results_daily$date, results_list$re_wat[j,], type="l",  lty=1, xlab="Time", ylab="re_wat", main=treatments[j], col="darkblue", ylim=c(0,1))
-    plot(results_list$results_daily$date, results_list$re_temp[j,], type="l",  lty=1, xlab="Time", ylab="re_temp", main=treatments[j], col="firebrick", ylim=c(0,1.1))
-    plot(results_list$results_daily$date, results_list$re_crop[j,], type="l",  lty=1, xlab="Time", ylab="re_crop", main=treatments[j], col="darkgreen")
-    dev.off()
-  }
-
-  } else {
-    for(j in 1:length(treatments)){
-
-    #plot the effect of the GAI function{
-    levels<-levels(results_list$crop_id)
-    date_range<-range(results_list$results_daily$date)
-    plot(results_list$results_daily$date, results_list$GAI[j,], type="l",  lty=2, xlab="Time", ylab="GAI", main=treatments[j])
-    for(i in 1:length(levels)){
-      GAI_loop<-results_list$GAI[j,]
-      GAI_loop[!results_list$crop_id==levels[i]]<-NA
-      lines(results_list$results_daily$date, GAI_loop, col=crop_palette[i])
-    }
-    legend("topleft", levels, col=crop_palette, lty=1, pch=NA, bty="n")
-
-    readline(prompt="Press [enter] to continue")
-    par(mfrow=c(2,1))
-    plot(results_list$results_daily$date, results_list$water_bal[j,], type="l",  lty=1, xlab="Time", ylab="Soil active water content (%)", main=treatments[j], col="darkblue")
-    plot(results_list$results_daily$date, results_list$soil_temp[j,], type="l",  lty=1, xlab="Time", ylab=expression(paste("Soil temperature (", degree,"C)")), main=treatments[j], col="firebrick")
-
-    readline(prompt="Press [enter] to continue")
-    par(mfrow=c(3,1))
-    plot(results_list$results_daily$date, results_list$re_wat[j,], type="l",  lty=1, xlab="Time", ylab="re_wat", main=treatments[j], col="darkblue", ylim=c(0,1))
-    plot(results_list$results_daily$date, results_list$re_temp[j,], type="l",  lty=1, xlab="Time", ylab="re_temp", main=treatments[j], col="firebrick", ylim=c(0,1.1))
-    plot(results_list$results_daily$date, results_list$re_crop[j,], type="l",  lty=1, xlab="Time", ylab="re_crop", main=treatments[j], col="darkgreen")
-    readline(prompt="Press [enter] to continue")
-    dev.off()
-    }
-  }
-
- cat("if you want to save the plots in your active folder remember to use the option: output_to_file=TRUE")
-}
-
-
-
-
 # datasets
 #' template data used to test the reclim package
 #'
@@ -475,3 +408,4 @@ reclim_diagnostic_plots<-function(results_list, output_to_file=F){
 #' data(weather_testdata)
 #'
 NULL
+

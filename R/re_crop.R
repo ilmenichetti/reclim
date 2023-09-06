@@ -193,6 +193,8 @@ waterbalance <-
 
 waterbalance<-function(twilt, tfield, precipitation, GAI, date, ET0, L, alpha=0.7){
 
+  if(length(precipitation)!=length(GAI)){cat("Water balance function probllem: GAI and precipitation have different lenghts")}
+
   length_sim<-length(precipitation) # define the lenght of the simulation based on the length of the input file
 
   water<-c()
@@ -219,7 +221,9 @@ waterbalance<-function(twilt, tfield, precipitation, GAI, date, ET0, L, alpha=0.
 
       theta=water[i]/L;
       Kr=(1-(0.95*tfield-theta)/(0.95*tfield-alpha*twilt))^2
-      if (Kr>1){Kr=1}
+
+      if(Kr>1){Kr=1}
+
       Eact[i]=Epot*Kr #actual evapotranspiration
       water[i+1]=water[i]+precipitation[i]-Eact[i]-inter-bypass[i]
     }

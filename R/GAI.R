@@ -109,7 +109,7 @@ GAI<-function(yield, crop, year, variance, seeding, harvest, tillage, minimum_co
   crop_list<-c("spring_small_grains", "spring_oil_seeds","winter_small_grains", "winter_oil_seeds","root_crop")
   # exception crops: "fodder", "missing", "ley"
 
-  for(j in 1:length(yield)){ #j is the year step
+for(j in 1:length(yield)){ #j is the year step
 
     ###checking if the year is a leap year
     if(is.na(year[j])){cat(paste("problem with year number",j, "it results", year[j]))}
@@ -173,20 +173,34 @@ GAI<-function(yield, crop, year, variance, seeding, harvest, tillage, minimum_co
       }
       }else if (crop[j]=='ley'){
 
-        if(!is.null(harvest2)){ # in case there is a second harvest
-          GAI<-rep(minimum_cover[j], length(day))
-          GAImax1=min(10,0.0018*yield[j])
-          GAImax2=min(10,0.0018*yield2[j])
-          for(i in 1:length(day)){
-            if(day[i]<harvest[j]){
-              GAI[i]=(GAImax)/(1+exp(-((day[i]-seeding[j])-(harvest[j]-seeding[j])/2)/10))}
-          }
-          GAI_production<-GAI[seeding[j]:length(day)]
-          GAI[harvest[j]:harvest2[j]]<-GAI_production[1:((harvest2[j]-harvest[j])+1)]
-          if(minimum_cover[j]>0){GAI[GAI<minimum_cover[j]]<-minimum_cover[j]}
-          if(!is.na(tillage[j])){GAI[tillage[j]:length(day)]=0}
+        if(any(0!=harvest2)){ # in case there is a second harvest
+          if(harvest2[j]!=0){
+              GAI<-rep(minimum_cover[j], length(day))
+              GAImax1=min(10,0.0018*yield[j])
+              GAImax2=min(10,0.0018*yield2[j])
+              for(i in 1:length(day)){
+                if(day[i]<harvest[j]){
+                  GAI[i]=(GAImax)/(1+exp(-((day[i]-seeding[j])-(harvest[j]-seeding[j])/2)/10))}
+              }
+              GAI_production<-GAI[seeding[j]:length(day)]
+              GAI[harvest[j]:harvest2[j]]<-GAI_production[1:((harvest2[j]-harvest[j])+1)]
+              if(minimum_cover[j]>0){GAI[GAI<minimum_cover[j]]<-minimum_cover[j]}
+              if(!is.na(tillage[j])){GAI[tillage[j]:length(day)]=0}
+          } else { #if harvest2[j] is zero
+            GAI<-rep(minimum_cover[j], length(day))
+            GAImax=min(10,0.0018*yield[j])
+            for(i in 1:length(day)){
+              if (day[i]>seeding[j]){GAI[i]=(GAImax)/(1+exp(-((day[i]-seeding[j])-(harvest[j]-seeding[j])/2)/10))}
+              if (day[i]<=seeding[j]){GAI[i]=0}
+              if (day[i]>harvest[j]){GAI[i]<-minimum_cover[j]}
+            }
+            GAI[day<seeding[j]]<-minimum_cover[j]
+            if(minimum_cover[j]>0){GAI[GAI<minimum_cover[j]]<-minimum_cover[j]}
+            if(!is.na(tillage[j])){GAI[tillage[j]:length(day)]=0}
 
-            }else { #in case harvest2 does not exist
+            }
+
+          }else { #in case harvest2 does not exist
               #GAI<-c()
               GAI<-rep(minimum_cover[j], length(day))
               GAImax=min(10,0.0018*yield[j])
@@ -233,10 +247,13 @@ GAI<-function(yield, crop, year, variance, seeding, harvest, tillage, minimum_co
 
     #creating LAI
     LAI<-GAI_list[[j]]$GAI*0.8
-    LAI[middle:harvest[j]][LAI[middle:harvest[j]]<(max(LAI)*0.7)]<-max(LAI)*0.7
-    #LAI[(harvest[j]-31):harvest[j]]<-max(LAI)*0.7
-    LAI[harvest[j]:tillage[j]]<-max(LAI)*0.2
+    if(!crop[j]=="missing"){ #if the crop is missing there is no harvest date...
+      LAI[middle:harvest[j]][LAI[middle:harvest[j]]<(max(LAI)*0.7)]<-max(LAI)*0.7
+      #LAI[(harvest[j]-31):harvest[j]]<-max(LAI)*0.7
+      LAI[harvest[j]:tillage[j]]<-max(LAI)*0.2
+    }
     LAI_list[[j]]<-data.frame(LAI,GAI_date, crop_long, yield_long)
+
     }
 
 

@@ -51,10 +51,6 @@ Subsequent conditions are applied so that Kr cannot be above one, and the values
 \emph{Step 9:  The water balance is calculated (stepwise)}
 \deqn{ W[i+1]=W[i]+P[i]-E_{act}[i]-It-W_b[i]}
 }
-\examples{
-
-
-}
 \author{
 Lorenzo Menichetti \email{ilmenichetti@gmail.com}
 }
