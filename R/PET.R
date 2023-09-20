@@ -3,7 +3,30 @@
 # author: Lorenzo Menichetti, on specifications from Martin Bolinder
 # Year 2018, August
 
-#GAI functions with "GAImax values calculated from aboveground NPP", M. Bolinder
+#PET
+#' Internal function to calculate the PET
+#'
+#' @description  the function is an implementation of the FAO 56 standard for evapotranspiration calculation
+#'
+#' @author Lorenzo Menichetti \email{ilmenichetti@@gmail.com}
+#'
+#' @param latitude self explanatory
+#' @param altitude altitude (meters)
+#' @param humidity (percent)
+#' @param temperature (C)
+#' @param windspeed in m/s
+#' @param sun radiation, (MJ  m^-2 day-1) sunlight (0 to 1) or cloudiness (0 to 1)
+#' @param sun.mode how sun energy is calculated (Rsolar = radiation energy, sunlight or cloudiness)
+#' @param date a date vector
+#'
+#' @return
+#' A data frame of 2 variables: \code{date},\code{PET}.
+#'
+#'
+#' @references
+#' Allen, R. G., Pereira, L. S., Raes, D. & Smith, M. Crop Evapotranspiration - Guidelines for Computing Crop Water Requirements - FAO Irrigation and Drainage Paper 56. 15.
+#'
+#' @export
 PET<-function(latitude, altitude, humidity, temperature, windspeed, sun, sun.mode, date){
 
   #convert the date in days of the year (lubridate is needed for this step)

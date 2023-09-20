@@ -28,7 +28,7 @@
 #' The other dimension of the data frame is as long as the combination of the treatments and the days of the simulation.
 #'
 #' @details
-#' The function relies on an input matrix which must follow a precise format, please refer to the attached \link{template}.
+#' The function relies on an input matrix which must follow a precise format, please refer to the attached \link{aboveground_testdata}.
 #'
 #' The function is used to simulate the development of crops and their green area index (G.A.I.). The function uses among the inputs a vector of different crops, which will be simulated with different parameters.
 #' These are \code{spring_small_grains}, \code{spring_oil_seeds}, \code{winter_small_grains}, \code{winter_oil_seeds},\code{root_crop}, \code{fodder}, \code{fodder maize} and \code{ley}. The function loops in annual steps through the years of the simulation

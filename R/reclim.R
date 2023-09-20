@@ -14,21 +14,25 @@ library("imputeTS")
 library("RColorBrewer")
 library("anytime")
 
+#to get rid of some errors in check phase
+utils::globalVariables(c("yday", "na_interpolation" ,"tail", "year", "ymd", "day", "month", "na.approx", "end", "anydate", "aggregate", "head"))
+
+
 ### Roxygen documentation
 
 #reclim
 #'Wrapper for the functions calculating the ICBM climate scaling factors
 #'
-#'This functions runs the re_clim calculation on a dataset (composed by two different tables, one daily for weather and one annual for aboveground biomass, please refer to the \link{template} for the data structure)
+#'This functions runs the re_clim calculation on a dataset (composed by two different tables, one daily for weather and one annual for aboveground biomass, please refer to the \link{aboveground_testdata} for the data structure)
 #'The function is a wrapper, performing a few data checks and running functions to calculate several parameters
 #'and hopefully runs without the user having to bother too much with intermediate steps.
 #'
 #' @author Lorenzo Menichetti \email{ilmenichetti@@gmail.com}, Martin Bolinder, Olaf Andrén, Thomas Kätterer
 #'
-#' @param weather data matrix of weather data, must be exactly in the format of the  \link{template} attached as example and contain the following headers:
+#' @param weather data matrix of weather data, must be exactly in the format of the  \link{weather_testdata} attached as example and contain the following headers:
 #'  ("date", "year", "month", "day", "air_temp_deg_C", "precipitation_mm", "windspeed_kmh", "humidity_percent", "Rsolar_lang")
 #'
-#' @param aboveground data matrix of weather data, must be exactly in the format of the  \link{template} attached as example and contain the following headers:
+#' @param aboveground data matrix of weather data, must be exactly in the format of the  \link{aboveground_testdata} attached as example and contain the following headers:
 #'  ("year", "crop_description", "crop_id", "treat", "variance", "seeding", "harvest", "harvest2", "tillage", "minimum_cover", "total_dm_kg_ha", "total_dm_kg_ha2" )
 #'  "harvest2" and "total_dm_kg_ha2" are optional and used in case of a double cut for leys
 #' @param sun.mode mode of sun data, can be either "Rsolar" (expressed in Langleys) or "cloudiness" (expressed in percent of sunny time per day)
@@ -355,7 +359,21 @@ reclim <- function(weather, #table
 }
 
 
-# function to aggregate the calculated values by year
+#
+
+#reclim.annual
+#'
+#'function to aggregate the calculated values by year
+#'
+#'This function aggregates the daily results from the function \link{reclim} in annual time steps
+#'
+#' @author Lorenzo Menichetti \email{ilmenichetti@@gmail.com}
+#'
+#' @param results_daily output from \link{reclim}
+#'
+#' @return a table, same structure of the output from \link{reclim}
+#'
+#' @export
 reclim_annual <- function(results_daily){
   DF_yearly<-aggregate(data.frame(results_daily), by=list(year(results_daily$date)), FUN="mean")
 
@@ -363,13 +381,12 @@ reclim_annual <- function(results_daily){
   }
 
 
-# datasets
-#' template data used to test the reclim package
+# datasets 1
+#' weather data used to test the reclim package
 #'
-#' @name templates
+#' @name weather_testdata
 #' @docType data
 #' @author Lorenzo Menichetti \email{ilmenichetti@@gmail.com}
-#'
 #'
 #' @format two data frames.
 #' Data are fictional, generated from real measured data but with a great deal of noise added.
@@ -386,6 +403,18 @@ reclim_annual <- function(results_daily){
 #'   \item{Rsolar}{solar radiation, in this case in Langleys. Can be also cloudiness, in hours of sun per day}
 #'   ...
 #' }
+#'
+#' @examples
+#' data(weather_testdata)
+NULL
+
+#'
+# aboveground_testdata
+#' aboveground data used to test the reclim package
+#'
+#' @name aboveground_testdata
+#' @docType data
+#' @author Lorenzo Menichetti \email{ilmenichetti@@gmail.com}
 #' Second dataframe (annual crop data), with 28 rows and 12 variables:
 #' \describe{
 #'   \item{year}{date vector, YYYY-mm-dd}
@@ -405,7 +434,5 @@ reclim_annual <- function(results_daily){
 #'
 #' @examples
 #' data(aboveground_testdata)
-#' data(weather_testdata)
-#'
 NULL
 

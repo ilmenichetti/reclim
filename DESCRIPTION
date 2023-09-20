@@ -5,8 +5,10 @@ Version: 0.1.0
 Author: Lorenzo Menichetti
 Maintainer: Lorenzo Menichetti <ilmenichetti@gmail.com> <lorenzo.menichetti@slu.se>
 Description: Calculates the climatic scale factors, which is mainly used for rescaling the kinetic terms of the ICBM model. The package is a collection of several functions wrapped together, which can also be run step by step. The package is experimental, and any feedback is appreciated.
-License: , http://www.wtfpl.net
+License: CC BY 4.0
 Encoding: UTF-8
 LazyData: true
-Depends: zoo, lubridate, imputeTS, RColorBrewer, anytime
 RoxygenNote: 7.2.3
+VignetteBuilder: knitr
+Suggests: knitr, rmarkdown
+Imports: devtools, plyr, lubridate, imputeTS, RColorBrewer, anytime

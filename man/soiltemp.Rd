@@ -32,7 +32,7 @@ And if the temperature is above zero
 And then calculates the soil temperature according to:
 \deqn{T_{soil_{i+1}}=T_{soil_i} + (T_{surface_i} - T_{soil_i}) \cdot 0.24 \cdot e^{(-Z_{depth} \cdot 0.017)} \cdot exp(-0.15 \cdot GAI_i)}
 And where \deqn{Z_{depth}=\frac{L}{20}}
-The LAI is calculated as \dfunc{LAI= 0.8 \cdot GAI}
+The LAI is calculated as \deqn{LAI= 0.8 \cdot GAI}
 }
 \references{
 Kätterer, T., and O. Andrén. 2009. “Predicting Daily Soil Temperature Profiles in Arable Soils in Cold Temperate Regions from Air Temperature and Leaf Area Index.” Acta Agriculturae Scandinavica, Section B - Plant Soil Science 59 (1): 77–86. https://doi.org/10.1080/09064710801920321.

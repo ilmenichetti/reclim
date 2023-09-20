@@ -108,7 +108,7 @@ FC<-function(sand, SOC){
 #' And then calculates the soil temperature according to:
 #' \deqn{T_{soil_{i+1}}=T_{soil_i} + (T_{surface_i} - T_{soil_i}) \cdot 0.24 \cdot e^{(-Z_{depth} \cdot 0.017)} \cdot exp(-0.15 \cdot GAI_i)}
 #' And where \deqn{Z_{depth}=\frac{L}{20}}
-#' The LAI is calculated as \dfunc{LAI= 0.8 \cdot GAI}
+#' The LAI is calculated as \deqn{LAI= 0.8 \cdot GAI}
 #'
 #' @return a vector with the daily soil temperature values
 #'
@@ -150,7 +150,7 @@ soiltemp<-function(L, GAI, date, temperature, LAI=NULL){
 #' @param twilt wilting point (0 to 1)
 #' @param tfield field capacity (0 to 1)
 #' @param precipitation daily precipitations (mm)
-#' @param GAI gren area index daily values
+#' @param GAI green area index daily values
 #' @param date date vector
 #' @param ET0 Evapotranspiration (calculated based on PET and GAI)
 #' @param L soil depth (mm)
@@ -191,7 +191,9 @@ waterbalance <-
   function(twilt, tfield, precipitation, GAI, date, ET0, L)
   { ... }
 
-waterbalance<-function(twilt, tfield, precipitation, GAI, date, ET0, L, alpha=0.7){
+waterbalance<-function(twilt, tfield, precipitation, GAI, date, ET0, L){
+
+  alpha=0.7
 
   if(length(precipitation)!=length(GAI)){cat("Water balance function probllem: GAI and precipitation have different lenghts")}
 

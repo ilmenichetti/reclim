@@ -10,16 +10,11 @@ fill.na(dataframe)
 \item{dataframe}{the weather data frame}
 }
 \value{
-a table, same structure of \link{dataframe}
+a data frame,, same structure of the input data frame
 }
 \description{
 This function fills NAs based on the average of the past 10 years (or less if less are presente)
 averaging day by day
-}
-\examples{
-
-add.years(dataframe, 5)
-
 }
 \author{
 Lorenzo Menichetti \email{ilmenichetti@gmail.com}

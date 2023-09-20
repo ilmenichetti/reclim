@@ -12,11 +12,11 @@
 #' @param dataframe the weather data frame
 #' @param new.years the number of years you want to extend the weather data frame
 #'
-#' @return a table, same structure of \link{template}
+#' @return a table, same structure of \link{weather_testdata}
 #'
 #' @examples
 #'
-#'add.years(dataframe, 5)
+#'add.years(weather_testdata, 5)
 #'
 #' @export
 add.years<-function(dataframe, new.years)
@@ -73,11 +73,8 @@ add.years<-function(dataframe, new.years){
 #'
 #' @param dataframe the weather data frame
 #'
-#' @return a table, same structure of \link{dataframe}
+#' @return a data frame,, same structure of the input data frame
 #'
-#' @examples
-#'
-#'add.years(dataframe, 5)
 #'
 #' @export
 fill.na<-function(dataframe)

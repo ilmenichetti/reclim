@@ -4,7 +4,7 @@
 \alias{waterbalance}
 \title{Internal function for the water balance model}
 \usage{
-waterbalance(twilt, tfield, precipitation, GAI, date, ET0, L, alpha = 0.7)
+waterbalance(twilt, tfield, precipitation, GAI, date, ET0, L)
 }
 \arguments{
 \item{twilt}{wilting point (0 to 1)}
@@ -13,7 +13,7 @@ waterbalance(twilt, tfield, precipitation, GAI, date, ET0, L, alpha = 0.7)
 
 \item{precipitation}{daily precipitations (mm)}
 
-\item{GAI}{gren area index daily values}
+\item{GAI}{green area index daily values}
 
 \item{date}{date vector}
 
