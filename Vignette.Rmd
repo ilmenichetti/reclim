@@ -1,6 +1,6 @@
 ---
-title: "r_clim: calculating climate scaling factors for the ICBM SOC model"
-author: "Lorenxo Menichetti"
+title: "re_clim: calculating climate scaling factors for the ICBM SOC model"
+author: "Lorenzo Menichetti"
 date: "`r Sys.Date()`"
 output:
   pdf_document:
@@ -22,20 +22,68 @@ knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>"
 )
+
+library(re)
 ```
 
 # Introduction
-The package `r_clim` is a collection of functions to calculate the climate scaling effect. (due to soil moisture and temperature) on the decomposition of soil organic matter (SOC). The functions are intended as companion of the ICBM model [@kattererICBMFamilyAnalytically2001] where they are used to rescale the two pools kinetics, but can be utilized to rescale any SOC decomposition process kinetic (for example as in @menichettiGenericParametersFirstorder2019 where the same scaling has been applied to the microbial kinetic term in the Q decomposition model) or to normalize for the effects of such covariates in laboratory studies.  
-In this vignette we will first describe the steps of the calculation, and then introduce an example of possible usage, based on an example dataset.  
+The package `re_clim` is a collection of functions to calculate the climate scaling effect (due to soil moisture and temperature) on the decomposition of soil organic matter (SOC). The functions are intended as companions of the ICBM model [@kattererICBMFamilyAnalytically2001] where they are used to rescale the two pools' kinetics, but can be utilized to rescale any SOC decomposition process kinetic (for example as in @menichettiGenericParametersFirstorder2019 where the same scaling has been applied to the microbial kinetic term in the Q decomposition model) or to normalize for the effects of such covariates in laboratory studies.  
+The calculation presented here can be easily updated by substituting specific functions with alternatives (for example by considering local pedotransfer funcitons in case this would be more appropriate), but this would require to follow the calculations steps manually and not using the main wrapper function `reclim`  
+In this vignette we will first describe the steps of the calculation, and then introduce an example of possible usage, based on an example dataset. Please refer to the package manual for more specific details.  
 
 # The steps in the calculation
 ![A bird's eye view of the procedure to calculate the climatic reduction coefficients](./man/figures/re_Clim_schema_reduced.png){width=80%}
 
 ## Soil temperature 
 
-## Potential evapotranspiration
+The soil temperature is calculated from the air temperature according to @kattererPredictingDailySoil2009. The calculation is based on an semi-empirical model considering heat transfer according to:
+$T_t(z) = T_{t-1}(z)+[T_{surf}-T_{t-1}(z) \cdot e^{-z \left( \frac{\pi}{k_sp} \right)^\frac{1}{2} } \cdot e^{-k_{LB} LAI_t}$. 
+
+where $t$ is time (day), $Tsurf$ is the apparent temperature at the soil surface, $k_s$ is the thermal diffusivity (cm$^2$ s$^{-1}$), $p$ is the period of temperature variation ($s$, in this case one year), and $k_{LB}$ is the radiation extinction coefficient according to Lambert-Beer’s Law, which governs the radiation transfer between atmosphere and soil as a function of leaf area (LAI) or an equivalent thickness of litter on the soil surface.  
+Please note that the soil temperature model calculates each time step based also on the previous (based on the idea of energy balance.)
 
 ## Biomass phenology functions (G.A.I. estimates)
+The biomass growth functions are different for each of the class considered by the calculation, which are:
+```{r, echo=FALSE} 
+c("spring_small_grains", "spring_oil_seeds","winter_small_grains", "winter_oil_seeds","root_crop")
+```
+Plus four additional experimental classes with specific functions;
+```{r, echo=FALSE} 
+c("fodder", "fodder_maize", "ley", "missing")
+```
+The latter were added during the last revision of the function and are still experimental features (in particular ley).
+The function is used to simulate the development of crops and their green area index (G.A.I.). The function uses among the inputs a vector of different crops, which will be simulated with different parameters.
+The function loops in annual steps through the years of the simulation and then runs a nested loop to simulate the crop growth in daily steps. 
+The functions returns also the LAI, calculated as $0.8 \cdot GAI$ until maximum GAI. After maximum GAI, before harvest the LAI is set to never fall below $0.7 \cdot max(LAI)$, and between harvest and tillage never below $0.2 \cdot max(LAI)$ according to Kätterer & Andrén 2009.
+First of all the function checks if the crop of that year is not "fodder", "fodder maize" or "ley". if not, then sets the maximum GAI (j is the index used in the main function loop, looping through the simulation years):
+$GAI_{max}=0.0129 \cdot (\frac{yield_j}{1000})^2 + 0.1964 \cdot(\frac{yield_j}{1000})$
+For root crops the maximum GAI is set differently (see below the specific section).  The function then proceeds to simulate the growth according to a gausssian function subsequently modified. The gaussian function is controlled by the parameters defining where it is centered and its variance. Its center is calculated according to seeding and harvest dates, which are in the input data. Then the GAI outside the area covered by such function is either set to zero or to the minimum coverage specified in the input data.
+The main function used to simulate the crop growth, after first having calculated the center of the gaussian with
+$middle=seeding_j + \frac{harvest_j-seeding_j}{2}$
+is the following:
+$GAI=GAI_{max} \cdot exp(-\frac{(day-middle)^2)}{(2\cdot variance_j)})$
+Most crops are considered covering the soil even after being fully mature, except root crops fodder (including silage maize). Please not that this does not imply that such crops are returned as C inputs to the soil in the ICBM model, this
+concerns just the calculation of the climatic reduction coefficients.
+
+### Specific crop functions
+Root crops have a specific function, which is based on the average yields (yield_vec) and maximum LAI (LAI_max_vec) obtained in the Ultuna experiment during the three years when root crops were planted.
+The maximum GAI is also calculated with a different function:
+$GAI_{max}=min(5.6,\frac{1}{0.8} \cdot mean(\frac{LAI_max_vec}{yield_vec}) \cdot \frac{1}{0.75} \cdot yield_j)$
+
+For fodder, the maximum GAI is calculated according to data for fodder rape (https://www.agronomysociety.org.nz/files/2010_11._Seed_yield_of_forage_rape.pdf)
+$GAI_{max}=min(10,0.0004615385 \cdot yield_j)$
+
+
+For silage (fodder) maize, the maximum GAI is calculated according to data from the Ultuna experiment, where silage maize has been planted since 2000
+$GAI_{max}=min(10,\frac{1}{0.8} \cdot 0.000533 \cdot yield_j)$
+
+Leys are complicated by the fact that there might be two subsequent cuts, so two harvests. The command considers this possibility with 2 optional parameters, harvest2 and yields2, which are otherwise set to NULL.
+If these two parameters are present another if condition takes care of them when they are not set to zero.
+
+
+
+## Potential evapotranspiration
+The evapotranspiration is calculated according to @allenCropEvapotranspirationGuidelines. Specifically, the potential evapotranspiration (PET or $ET_0$ according to FAO terminology) is calculated based on radiation, air temperature, humidity and wind speed according to the Penman-Monteith equation. The function implemented in this package can utilize either direct solar radiation (energy, MJ m$^{-2}$ day$^{-1}$) measurements, or sunlight/cloudiness.
 
 ## Soil water balance
 The steps of the calculation are already described in the package manual, but here we will examine some of them in more detail.  
@@ -69,15 +117,33 @@ Step 9:  The water balance is calculated (stepwise)
 $W[i+1]=W[i]+P[i]-E_{act}[i]-It-W_b[i]$  
 
 ## Pedotransfer functions
+Pedotransfer functions are calculated according to @kattererPredictingDailySoil2009
+
 
 ## Temperature reduction function
+The temperature reduction function is taken from @10.1007/s003740050430
+```{r, fig.height = 4, fig.width = 4} 
+Temp_soil=seq(from=-10, to=30, by=0.1)
+re_temp=re_temperature(Temp_soil)
+plot(Temp_soil, re_temp, main="Shape of the temperature reduction function", type="l", col="firebrick1", lwd=2)
+```
+
 
 ## Water reduction function
+The water reduction function was updated form previous ICBM iterations with a function able to represent also the reduction in activity with approaching soil saturation, according to moyanoMoistureResponseSoil2012
+
+The temperature reduction function is taken from @10.1007/s003740050430
+```{r, fig.height = 4, fig.width = 4} 
+Water_soil=seq(from=0, to=10, by=0.1)
+re_moist=re_water(twilt=0.2, tfield=0.5, water=Water_soil, porosity=0.7, L=20)
+plot(Water_soil, re_moist, main="Shape of the moisture reduction function", type="l", col="firebrick1", lwd=2)
+```
 
 ## Normalization and averaging
+The terms from the two reduction functions are multiplied as $r_{x_1} = r_{temp} \cdot r_{moist}$, and the term  $r_{x_1}$ is then rescaled so that the treatment G of the Ultuna long term frame trial (@andrenICBMINTRODUCTORYCARBON1997) to obtain the scaled value $r_e=r_{x_1} \cdot 0.1056855$. This particular experiment is where the kinetics of the ICBM model were initially calibrated, and the G treatment is the one approximating the equilibrium.  
+The scaling can be adapted to different models or sites, if needed, provided that the calibration is updated. 
 
-
-## Example 
+# Example 
 First we need to install the package from its GitHub repository, for which we need to rely on the package `devtools`.  
 
 ```{r,  include = FALSE} 

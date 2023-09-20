@@ -292,14 +292,13 @@ re_temperature<-function(soilT){
 #' @return a vector with the daily water reduction values
 #'
 #' @references
-#' Moyano FE, Manzoni S, Chenu C. Responses of soil heterotrophic respiration to moisture availability: An exploration of processes and models. Soil Biol Biochem. Elsevier Ltd; 2013;59: 72–85. doi:10.1016/j.soilbio.2013.01.002
 #'
 #' @export
 re_water <-
   function(twilt, tfield, water, porosity, L)
   { ... }
 
-#dependence of decompositono over soil moisture
+#dependence of decomposition over soil moisture
 re_water<-function(twilt, tfield, water, porosity, L){
 
   rs=0.5;
@@ -322,4 +321,47 @@ re_water<-function(twilt, tfield, water, porosity, L){
 }
 
 
+
+#re_water
+#' internal function for determining the dependence of decompositono over soil moisture
+#'
+#' @author Lorenzo Menichetti \email{ilmenichetti@@gmail.com}
+#'
+#' @param twilt wilting point (0 to 1)
+#' @param tfield field capacity (0 to 1)
+#' @param water water balance (in mm)
+#' @param porosity soil porosity /0 to 1)
+#' @param L soil depth (in mm)
+#'
+#' @return a vector with the daily water reduction values
+#'
+#' @references
+#' Moyano FE, Manzoni S, Chenu C. Responses of soil heterotrophic respiration to moisture availability: An exploration of processes and models. Soil Biol Biochem. Elsevier Ltd; 2013;59: 72–85. doi:10.1016/j.soilbio.2013.01.002
+#'
+#' @export
+re_water_moy <-
+  function(twilt, tfield, water, porosity, L)
+  { ... }
+
+#dependence of decomposition over soil moisture
+re_water_moy<-function(twilt, tfield, water, porosity, L){
+
+  rs=0.5;
+  topt = 0.2+1.26*tfield**2.03;
+  tth= 0.0965*log(twilt) + 0.3;
+  theta=water/L;
+  re_wat<-c()
+  for(i in 1:length(water)){
+    if (theta[i]<tth) {re_wat[i]=0}; end;
+    if (tth<=theta[i] & theta[i]<min(topt,tfield)){
+      re_wat[i]=(theta[i]-tth)/(min(topt,tfield)-tth)}
+    if (min(topt,tfield)<= theta[i] & theta[i] <= max(topt,tfield)) {
+      re_wat[i]=1}
+    if (theta[i] >max(topt,tfield)) {
+      re_wat[i]=1-(1-rs)*(theta[i]-max(topt,tfield))/(porosity-max(topt,tfield))}
+  }
+  re_wat[re_wat>1]=1
+  re_wat[re_wat<0]=0
+  return(re_wat)
+}
 
