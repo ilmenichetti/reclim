@@ -1,13 +1,21 @@
 ---
 title: 're_clim: calculating climate scaling factors for the ICBM SOC model'
 author: "Lorenzo Menichetti"
-output: pdf_document
-vignette: >
-  %\VignetteIndexEntry{reclim_vignette}
-  %\VignetteEngine{knitr::rmarkdown}
-  %\VignetteEncoding{UTF-8}
+date: "`r Sys.Date()`"
+output:
+  pdf_document:
+    highlight: null
+    number_sections: yes
+  knitr:::html_vignette:
+    toc: yes
+    css: custom.css
+    fig_caption: yes
+  html_document:
+    toc: yes
+    df_print: paged
+bibliography: references.bib
+vignette: "%\\VignetteIndexEntry{Vignette Title} %\\VignetteEncoding{UTF-8} %\\VignetteEngine{knitr::rmarkdown}\n"
 ---
-
 
 ```{r setup, include = FALSE}
 knitr::opts_chunk$set(
@@ -24,7 +32,7 @@ The calculation presented here can be easily updated by substituting specific fu
 In this vignette we will first describe the steps of the calculation, and then introduce an example of possible usage, based on an example dataset. Please refer to the package manual for more specific details.  
 
 # The steps in the calculation
-![A bird's eye view of the procedure to calculate the climatic reduction coefficients](../man/figures/re_Clim_schema_reduced.png){width=80%}
+![A bird's eye view of the procedure to calculate the climatic reduction coefficients](./man/figures/re_Clim_schema_reduced.png){width=80%}
 
 ## Soil temperature 
 

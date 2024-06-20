@@ -1,10 +1,10 @@
 Package: re
 Type: Package
-Title: calculating climate scaling factors for the ICBM SOC modell
+Title: Calculating Climate Scaling Factors for the ICBM SOC Model
 Version: 0.1.0
 Author: Lorenzo Menichetti
-Maintainer: Lorenzo Menichetti <ilmenichetti@gmail.com> <lorenzo.menichetti@slu.se>
-Description: Calculates the climatic scale factors, which is mainly used for rescaling the kinetic terms of the ICBM model. The package is a collection of several functions wrapped together, which can also be run step by step. The package is experimental, and any feedback is appreciated.
+Maintainer: Lorenzo Menichetti <ilmenichetti@gmail.com>
+Description: Calculates the climatic scaling factors, which is mainly used for rescaling the kinetic terms of the ICBM model. The package is a collection of several functions wrapped together, which can also be run step by step. The package is experimental, and any feedback is appreciated.
 License: CC BY 4.0
 Encoding: UTF-8
 LazyData: true

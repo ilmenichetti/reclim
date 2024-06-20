@@ -248,7 +248,7 @@ reclim <- function(weather, #table
   cat(paste("\n","performing calculations for treatment",treatment,"\n"))
 
   cat(paste("GAI calculation for treatment",treatment,"\n"))
-  GAI_calc<-GAI(yield=selected_aboveground$total_dm_kg_ha,
+  GAI_calc<-GAI_optimized(yield=selected_aboveground$total_dm_kg_ha,
                 year=selected_aboveground$year,
                 crop=selected_aboveground$crop_id,
                 variance=selected_aboveground$variance,

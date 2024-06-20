@@ -5,7 +5,7 @@
 
 ### Roxygen documentation
 
-#GAI
+#GAI (deprecated, not in use)
 #' Internal function to calculate the GAI (Green Area Index) based on yields and agronomical data.
 #' @description  The function distributes the biomass growth (considering its proxy GAI and LAI) according to a gaussian function with parameters defined relatively to the crop.
 #' It is used for determining the effect of increased ET due to the presence of plant and the effect of shading on soil temperature.
